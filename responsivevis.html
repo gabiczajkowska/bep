@@ -468,7 +468,7 @@ const yLbl=c=>isEl(c)?'Elective':'Y'+c.year;
 
 // ── LOAD DATA ────────────────────────────────────────────────────────────────
 // Fetches course catalogue and dependency graph, then boots the app.
-Promise.all([d3.json('courses_unified.json'),d3.json('dependencies.json')]).then(([ac,ad])=>init(ac,ad));
+Promise.all([d3.json('courses.json'),d3.json('dependencies.json')]).then(([ac,ad])=>init(ac,ad));
 
 // ── STATE ────────────────────────────────────────────────────────────────────
 // S: global app state (populated by init, consumed by buildM / buildD).
