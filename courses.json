@@ -1,0 +1,631 @@
+[
+  {
+    "id": "2WBB0",
+    "name": "Calculus variant 2",
+    "year": 1,
+    "quarters": [
+      1
+    ],
+    "ects": 5.0,
+    "learningLine": "Foundations",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IP90",
+    "name": "Programming",
+    "year": 1,
+    "quarters": [
+      1
+    ],
+    "ects": 5.0,
+    "learningLine": "Software Development",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IT60",
+    "name": "Logic and Set Theory",
+    "year": 1,
+    "quarters": [
+      1
+    ],
+    "ects": 5.0,
+    "learningLine": "Algorithms & Theory of Computing",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2DRR00",
+    "name": "Linear Algebra + Applications",
+    "year": 1,
+    "quarters": [
+      2
+    ],
+    "ects": 5.0,
+    "learningLine": "Foundations",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IT80",
+    "name": "Discrete Structures",
+    "year": 1,
+    "quarters": [
+      2
+    ],
+    "ects": 5.0,
+    "learningLine": "Algorithms & Theory of Computing",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IAB1",
+    "name": "Foundations of Data Analytics",
+    "year": 1,
+    "quarters": [
+      2
+    ],
+    "ects": 5.0,
+    "learningLine": "Foundations",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2DRR10",
+    "name": "Probability and Statistics for CS",
+    "year": 1,
+    "quarters": [
+      3
+    ],
+    "ects": 5.0,
+    "learningLine": "Foundations",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IL50",
+    "name": "Data Structures",
+    "year": 1,
+    "quarters": [
+      3
+    ],
+    "ects": 5.0,
+    "learningLine": "Algorithms & Theory of Computing",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IC30",
+    "name": "Computer Systems",
+    "year": 1,
+    "quarters": [
+      3
+    ],
+    "ects": 5.0,
+    "learningLine": "Systems",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IRR00",
+    "name": "Software Design",
+    "year": 1,
+    "quarters": [
+      4
+    ],
+    "ects": 5.0,
+    "learningLine": "Software Development",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IRR10",
+    "name": "CBL Autonomous Systems Twinning",
+    "year": 1,
+    "quarters": [
+      4
+    ],
+    "ects": 5.0,
+    "learningLine": "Software Development",
+    "track": "MainProgram"
+  },
+  {
+    "id": "0LVX10",
+    "name": "ITEC Engineering Ethics",
+    "year": 1,
+    "quarters": [
+      4
+    ],
+    "ects": 5.0,
+    "learningLine": "External",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IX20",
+    "name": "Software Specification",
+    "year": 2,
+    "quarters": [
+      1
+    ],
+    "ects": 5.0,
+    "learningLine": "Software Development",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IRR20",
+    "name": "Networks",
+    "year": 2,
+    "quarters": [
+      1
+    ],
+    "ects": 5.0,
+    "learningLine": "Systems",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IRR90",
+    "name": "Automata and Formal Languages",
+    "year": 2,
+    "quarters": [
+      2
+    ],
+    "ects": 5.0,
+    "learningLine": "Algorithms & Theory of Computing",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2ID50",
+    "name": "Datamodelling and Databases",
+    "year": 2,
+    "quarters": [
+      2
+    ],
+    "ects": 5.0,
+    "learningLine": "Systems",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2ILC0",
+    "name": "Algorithms",
+    "year": 2,
+    "quarters": [
+      3
+    ],
+    "ects": 5.0,
+    "learningLine": "Algorithms & Theory of Computing",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IRR50",
+    "name": "Statistics and Machine Learning",
+    "year": 2,
+    "quarters": [
+      4
+    ],
+    "ects": 5.0,
+    "learningLine": "Foundations",
+    "track": "MainProgram"
+  },
+  {
+    "id": "4CBLW00-BCS",
+    "name": "Multidisciplinary CBL",
+    "year": 2,
+    "quarters": [
+      4
+    ],
+    "ects": 5.0,
+    "learningLine": "External",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IRR40",
+    "name": "Security",
+    "year": 2,
+    "quarters": [
+      4
+    ],
+    "ects": 5.0,
+    "learningLine": "Systems",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2INC0",
+    "name": "Operating Systems",
+    "year": 2,
+    "quarters": [
+      3
+    ],
+    "ects": 5.0,
+    "learningLine": "Systems",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IRR30",
+    "name": "Software Engineering Project",
+    "year": 3,
+    "quarters": [
+      1,
+      2
+    ],
+    "ects": 10.0,
+    "learningLine": "Software Development",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2ICS00",
+    "name": "Bachelor Final Project BCS",
+    "year": 3,
+    "quarters": [
+      3,
+      4
+    ],
+    "ects": 10.0,
+    "learningLine": "External",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IRR60",
+    "name": "Capstone Heuristic Algorithms",
+    "year": 3,
+    "quarters": [
+      1
+    ],
+    "ects": 5.0,
+    "learningLine": "Algorithms & Theory of Computing",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IRR70",
+    "name": "Capstone Systems Integration",
+    "year": 3,
+    "quarters": [
+      1
+    ],
+    "ects": 5.0,
+    "learningLine": "Systems",
+    "track": "MainProgram"
+  },
+  {
+    "id": "2IRR80",
+    "name": "Capstone Software Development",
+    "year": 3,
+    "quarters": [
+      1
+    ],
+    "ects": 5.0,
+    "learningLine": "Software Development",
+    "track": "MainProgram"
+  },
+  {
+    "id": "0LVX20",
+    "name": "ITEC Engineering for Society",
+    "year": 3,
+    "quarters": [
+      3
+    ],
+    "ects": 5.0,
+    "learningLine": "External",
+    "track": "MainProgram"
+  },
+  {
+    "id": "ElectiveY2Q1",
+    "name": "Elective",
+    "year": 2,
+    "quarters": [
+      1
+    ],
+    "ects": 5.0,
+    "learningLine": "External",
+    "track": "MainProgram"
+  },
+  {
+    "id": "ElectiveY2Q2",
+    "name": "Elective",
+    "year": 2,
+    "quarters": [
+      2
+    ],
+    "ects": 5.0,
+    "learningLine": "External",
+    "track": "MainProgram"
+  },
+  {
+    "id": "ElectiveY2Q3",
+    "name": "Elective",
+    "year": 2,
+    "quarters": [
+      3
+    ],
+    "ects": 5.0,
+    "learningLine": "External",
+    "track": "MainProgram"
+  },
+  {
+    "id": "ElectiveY3Q1",
+    "name": "Elective",
+    "year": 3,
+    "quarters": [
+      1
+    ],
+    "ects": 5.0,
+    "learningLine": "External",
+    "track": "MainProgram"
+  },
+  {
+    "id": "ElectiveY3Q2a",
+    "name": "Elective",
+    "year": 3,
+    "quarters": [
+      2
+    ],
+    "ects": 5.0,
+    "learningLine": "External",
+    "track": "MainProgram"
+  },
+  {
+    "id": "ElectiveY3Q2b",
+    "name": "Elective",
+    "year": 3,
+    "quarters": [
+      2
+    ],
+    "ects": 5.0,
+    "learningLine": "External",
+    "track": "MainProgram"
+  },
+  {
+    "id": "ElectiveY3Q3",
+    "name": "Elective",
+    "year": 3,
+    "quarters": [
+      3
+    ],
+    "ects": 5.0,
+    "learningLine": "External",
+    "track": "MainProgram"
+  },
+  {
+    "id": "ElectiveY3Q4a",
+    "name": "Elective",
+    "year": 3,
+    "quarters": [
+      4
+    ],
+    "ects": 5.0,
+    "learningLine": "External",
+    "track": "MainProgram"
+  },
+  {
+    "id": "ElectiveY3Q4b",
+    "name": "Elective",
+    "year": 3,
+    "quarters": [
+      4
+    ],
+    "ects": 5.0,
+    "learningLine": "External",
+    "track": "MainProgram"
+  },
+  {
+    "id": "JBI010",
+    "name": "Programming",
+    "year": -1,
+    "quarters": [
+      1
+    ],
+    "ects": 5,
+    "learningLine": "Software Development",
+    "track": "Elective"
+  },
+  {
+    "id": "JBL125",
+    "name": "Law and Data Science",
+    "year": -1,
+    "quarters": [
+      1
+    ],
+    "ects": 5,
+    "learningLine": "Foundations",
+    "track": "Elective"
+  },
+  {
+    "id": "JBM230",
+    "name": "Data Acquisition Methods",
+    "year": -1,
+    "quarters": [
+      2
+    ],
+    "ects": 5,
+    "learningLine": "Systems",
+    "track": "Elective"
+  },
+  {
+    "id": "JBI026",
+    "name": "Discrete Mathematics",
+    "year": -1,
+    "quarters": [
+      2
+    ],
+    "ects": 5,
+    "learningLine": "Algorithms & Theory of Computing",
+    "track": "Elective"
+  },
+  {
+    "id": "JBC000",
+    "name": "Cognitive Science and AI",
+    "year": -1,
+    "quarters": [
+      3
+    ],
+    "ects": 5,
+    "learningLine": "Systems",
+    "track": "Elective"
+  },
+  {
+    "id": "JBG000",
+    "name": "Data Science Ethics",
+    "year": -1,
+    "quarters": [
+      3
+    ],
+    "ects": 5,
+    "learningLine": "Software Development",
+    "track": "Elective"
+  },
+  {
+    "id": "JBG030",
+    "name": "DBL Data Challenge",
+    "year": -1,
+    "quarters": [
+      4
+    ],
+    "ects": 5,
+    "learningLine": "Systems",
+    "track": "Elective"
+  },
+  {
+    "id": "JBM015",
+    "name": "Data Statistics",
+    "year": -1,
+    "quarters": [
+      4
+    ],
+    "ects": 5,
+    "learningLine": "Foundations",
+    "track": "Elective"
+  },
+  {
+    "id": "JBM075",
+    "name": "Linear Algebra for Data Science",
+    "year": -1,
+    "quarters": [
+      4
+    ],
+    "ects": 5,
+    "learningLine": "Software Development",
+    "track": "Elective"
+  },
+  {
+    "id": "JBM050",
+    "name": "Statistical computing",
+    "year": -1,
+    "quarters": [
+      1
+    ],
+    "ects": 5,
+    "learningLine": "Algorithms & Theory of Computing",
+    "track": "Elective"
+  },
+  {
+    "id": "JBI030",
+    "name": "Data Mining",
+    "year": -1,
+    "quarters": [
+      1
+    ],
+    "ects": 5,
+    "learningLine": "Foundations",
+    "track": "Elective"
+  },
+  {
+    "id": "JBM045",
+    "name": "Econometrics for Data Science",
+    "year": -1,
+    "quarters": [
+      2
+    ],
+    "ects": 5,
+    "learningLine": "Systems",
+    "track": "Elective"
+  },
+  {
+    "id": "JBI100",
+    "name": "Visualization",
+    "year": -1,
+    "quarters": [
+      2
+    ],
+    "ects": 5,
+    "learningLine": "Algorithms & Theory of Computing",
+    "track": "Elective"
+  },
+  {
+    "id": "JBG040",
+    "name": "Advanced Data Challenge",
+    "year": -1,
+    "quarters": [
+      3
+    ],
+    "ects": 5,
+    "learningLine": "Software Development",
+    "track": "Elective"
+  },
+  {
+    "id": "JBI050",
+    "name": "Data Management for Data Analytics",
+    "year": -1,
+    "quarters": [
+      3
+    ],
+    "ects": 5,
+    "learningLine": "Software Development",
+    "track": "Elective"
+  },
+  {
+    "id": "JBM025",
+    "name": "Data Science Research Methods",
+    "year": -1,
+    "quarters": [
+      4
+    ],
+    "ects": 5,
+    "learningLine": "Algorithms & Theory of Computing",
+    "track": "Elective"
+  },
+  {
+    "id": "JBE150",
+    "name": "Data-Driven Business Creation",
+    "year": -1,
+    "quarters": [
+      4
+    ],
+    "ects": 5,
+    "learningLine": "Systems",
+    "track": "Elective"
+  },
+  {
+    "id": "JBG060",
+    "name": "Capstone Data Challenge",
+    "year": -1,
+    "quarters": [
+      1
+    ],
+    "ects": 5,
+    "learningLine": "Foundations",
+    "track": "Elective"
+  },
+  {
+    "id": "JBL110",
+    "name": "Innovation and Regulation",
+    "year": -1,
+    "quarters": [
+      1
+    ],
+    "ects": 5,
+    "learningLine": "Systems",
+    "track": "Elective"
+  },
+  {
+    "id": "JBE140",
+    "name": "Business Insights and Networks",
+    "year": -1,
+    "quarters": [
+      2
+    ],
+    "ects": 5,
+    "learningLine": "Software Development",
+    "track": "Elective"
+  },
+  {
+    "id": "JBC090",
+    "name": "Language and AI",
+    "year": -1,
+    "quarters": [
+      2
+    ],
+    "ects": 5,
+    "learningLine": "Foundations",
+    "track": "Elective"
+  }
+]

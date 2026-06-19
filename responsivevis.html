@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BCS Curriculum Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf9f7;--panel:#fff;--ink:#1a1a1a;--ink-soft:#5a5a5a;--ink-faint:#9a9a9a;
+  --border:#e5e3df;--border-soft:#efedea;
+  --req:#1a4d7a;--rec:#5b8c5a;--one:#b7791f;--inc:#c53030;--warn:#d97706;
+  --shadow:0 4px 12px -8px rgba(0,0,0,.18);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;font-family:'IBM Plex Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+body.mob{background:#eaeaea;display:flex;justify-content:center;min-height:100vh}
+body.mob .dr{display:none!important}
+body.mob .mr{display:flex}
+body:not(.mob) .mr{display:none!important}
+body:not(.mob) .dr{display:block}
+body.sh-open{overflow:hidden}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.chip{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:999px;background:var(--bg);color:var(--ink-soft);border:1px solid var(--border-soft);line-height:1.25;font-family:'IBM Plex Mono',monospace;font-weight:500;white-space:nowrap}
+.chip.req{background:rgba(26,77,122,.07);color:var(--req);border-color:rgba(26,77,122,.18)}
+.chip.unl{background:rgba(91,140,90,.07);color:var(--rec);border-color:rgba(91,140,90,.2)}
+.chip.inc,.chip.cfl{background:rgba(197,48,48,.06);color:var(--inc);border-color:rgba(197,48,48,.2)}
+.chip.wcfl,.chip.mreq{background:rgba(217,119,6,.08);color:#a85a05;border-color:rgba(217,119,6,.28)}
+.chip.asgn{background:rgba(91,140,90,.1);color:var(--rec);border-color:rgba(91,140,90,.22)}
+
+/* ── MOBILE ── */
+.mr{width:100%;max-width:430px;flex-direction:column;background:var(--bg);min-height:100vh;position:relative;box-shadow:0 0 30px rgba(0,0,0,.06)}
+.mhdr{position:sticky;top:0;z-index:10;background:rgba(250,249,247,.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:12px 16px 0}
+.mtitle{font-size:17px;font-weight:600;letter-spacing:-.01em;margin:0 0 8px;line-height:1.2}
+.mstats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.mstat{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:5px 8px;text-align:center;transition:background .15s,border-color .15s}
+.mstat-num{font-size:16px;font-weight:600;line-height:1;letter-spacing:-.02em}
+.mstat-num .sub{font-size:11px;font-weight:400;color:var(--ink-faint);margin-left:2px}
+.mstat-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);margin-top:2px}
+.mstat.warn{background:#fef6f6;border-color:#ecc2c2}.mstat.warn .mstat-num{color:var(--inc)}
+.mstat.ok{background:#f4faf4;border-color:#c8dec8}.mstat.ok .mstat-num{color:var(--rec)}
+.mtabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin:0 -16px;padding:0 12px}
+.tbtn{font-family:inherit;font-size:13px;font-weight:500;padding:10px 14px;cursor:pointer;background:transparent;border:none;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .1s,border-color .1s;flex:1}
+.tbtn.on{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
+.mleg{padding:10px 0 2px;border-top:1px solid var(--border-soft)}
+.mleg-group{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+.mleg-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint);margin-right:4px}
+.mleg-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-soft)}
+.mleg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.mtsec{display:none;flex:1}.mtsec.on{display:block}
+.mplan{padding:12px 16px 80px}
+.myear{margin-bottom:22px}
+.myear-h{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.myear-h::after{content:'';flex:1;height:1px;background:var(--border)}
+.mqtr{margin-bottom:12px}
+.mqtr-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint);margin:0 0 6px;padding-left:2px}
+.mstack{display:flex;flex-direction:column;gap:6px}
+.mcard{background:color-mix(in srgb,var(--cc) 4%,white);border-radius:8px;border:1px solid var(--border-soft);padding:10px 12px 10px 16px;position:relative;display:grid;grid-template-columns:1fr auto;gap:4px 8px;cursor:pointer;transition:transform .08s,background .08s;user-select:none;min-height:56px}
+.mcard:active{transform:scale(.985);background:var(--bg)}
+.mcard::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:4px;border-radius:0 3px 3px 0;background:var(--cc,var(--ink-faint))}
+.mc-code{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--ink-soft);letter-spacing:.02em}
+.mc-ects{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint);align-self:start}
+.mc-name{font-size:14px;font-weight:500;line-height:1.3;grid-column:1/-1}
+.mc-line{font-size:10px;color:var(--ink-faint);grid-column:1/-1;margin-top:-2px}
+.mcard .chips{grid-column:1/-1}
+.mcard.empty{background:transparent;border:1.5px dashed var(--ink-faint);min-height:64px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:10px 14px}
+.mcard.empty::before{display:none}
+.mcard.empty .etitle{font-size:14px;font-weight:500;color:var(--ink-soft)}
+.mcard.empty .emeta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-faint);margin-top:2px}
+.mc-tag{font-size:9px;text-transform:uppercase;letter-spacing:.08em;background:var(--rec);color:#fff;padding:2px 6px;border-radius:3px;font-weight:600;align-self:center}
+.mc-warn{position:absolute;top:8px;right:10px;width:18px;height:18px;background:var(--warn);color:#fff;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.mc-rm{position:absolute;bottom:8px;right:8px;width:22px;height:22px;background:rgba(0,0,0,.15);color:#fff;border:none;border-radius:50%;font-size:14px;font-weight:600;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;touch-action:manipulation;z-index:2}
+.mc-rm:active{background:rgba(0,0,0,.4)}
+/* explorer */
+.mexp{display:none}.mexp.on{display:block}
+.mflt{background:var(--panel);border-bottom:1px solid var(--border);padding:10px 16px 12px}
+.mflt-row{display:flex;align-items:flex-start;gap:8px;margin-top:8px}
+.mflt-row:first-child{margin-top:0}
+.mflt-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);width:52px;padding-top:5px;flex-shrink:0}
+.mflt-chips{display:flex;flex-wrap:wrap;gap:4px;flex:1}
+.fchip{font-size:11px;padding:4px 9px;border-radius:999px;background:var(--bg);border:1px solid var(--border);color:var(--ink-soft);cursor:pointer;user-select:none;transition:all .1s;min-height:26px;display:inline-flex;align-items:center}
+.fchip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.msrch{width:100%;border:1px solid var(--border);background:var(--bg);border-radius:8px;padding:10px 12px;font-family:inherit;font-size:13px;color:var(--ink);outline:none}
+.msrch:focus{border-color:var(--ink-faint);background:#fff}
+.mresbar{padding:10px 16px 6px;font-size:11px;color:var(--ink-faint);display:flex;justify-content:space-between;align-items:center}
+.meclist{padding:4px 16px 80px;display:flex;flex-direction:column;gap:6px}
+.mecard{background:var(--panel);border-radius:8px;border:1px solid var(--border-soft);padding:10px 30px 10px 16px;position:relative;cursor:pointer;transition:transform .08s,background .08s;user-select:none}
+.mecard:active{transform:scale(.985);background:var(--bg)}
+.mecard::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:4px;border-radius:0 3px 3px 0;background:var(--cc,var(--ink-faint))}
+.mecard::after{content:'›';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--ink-faint);line-height:1}
+.ec-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.ec-code{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--ink-soft)}
+.ec-meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-faint)}
+.ec-name{font-size:13px;font-weight:500;line-height:1.3;margin-top:2px}
+.ec-line{font-size:10px;color:var(--ink-faint);margin-top:1px}
+.mempty{padding:30px 16px;text-align:center;color:var(--ink-faint);font-size:13px;font-style:italic}
+/* detail */
+.mdhdr{background:var(--panel);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px}
+.mbk{background:var(--bg);border:1px solid var(--border);width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:16px;padding:0;flex-shrink:0}
+.mdhdr-t{font-size:13px;font-weight:500;color:var(--ink-soft)}
+.mdbody{padding:14px 16px 80px}
+.msel{border-radius:10px;padding:16px 18px;color:#fff;background:var(--cc,var(--ink));box-shadow:0 4px 16px rgba(0,0,0,.1);margin-bottom:22px}
+.msel-code{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:rgba(255,255,255,.82);letter-spacing:.02em}
+.msel-name{font-size:19px;font-weight:600;line-height:1.2;margin:3px 0 8px;letter-spacing:-.005em}
+.msel-meta{display:flex;flex-wrap:wrap;gap:4px 6px;font-size:11px}
+.msel-meta .cl{background:rgba(255,255,255,.18);padding:2px 8px;border-radius:999px;color:#fff}
+.mdstats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:-10px 0 22px}
+.mdstat{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 8px;text-align:center}
+.mdstat .n{font-size:18px;font-weight:600;letter-spacing:-.02em;line-height:1}
+.mdstat .l{font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);margin-top:4px}
+.mdstat.req .n{color:var(--req)}.mdstat.unl .n{color:var(--rec)}.mdstat.inc .n{color:var(--inc)}
+.mdsec{margin-bottom:18px}
+.mdsec-hd{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.mdsec-ic{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.mdsec-ic.rq{background:var(--req)}.mdsec-ic.ul{background:var(--rec)}.mdsec-ic.ic{background:var(--inc)}
+.mdsec-title{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;color:var(--ink)}
+.mdsec-ct{font-size:11px;color:var(--ink-faint);margin-left:auto;font-family:'IBM Plex Mono',monospace}
+.mdcards{display:flex;flex-direction:column;gap:6px}
+.mcc{background:var(--panel);border-radius:8px;border:1px solid var(--border-soft);padding:10px 30px 10px 16px;position:relative;cursor:pointer;transition:transform .08s;user-select:none}
+.mcc::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:4px;border-radius:0 3px 3px 0;background:var(--cc,var(--ink-faint))}
+.mcc::after{content:'›';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--ink-faint);line-height:1}
+.mcc .ct{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.mcc .ccode{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--ink-soft)}
+.mcc .cmeta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-faint)}
+.mcc .cname{font-size:13px;font-weight:500;line-height:1.3;margin-top:2px}
+.mcc.absent{border-style:dashed;background:var(--bg);cursor:default}.mcc.absent::after{display:none}
+.mdsec-empty{font-size:12px;color:var(--ink-faint);font-style:italic;padding:8px 4px 0}
+/* sheet */
+.mbk2{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:50}
+.mbk2.on{opacity:1;pointer-events:auto}
+.msh{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:430px;max-height:88vh;background:var(--panel);border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.18);transition:transform .22s cubic-bezier(.18,.74,.41,1);z-index:60;display:flex;flex-direction:column;overscroll-behavior:contain}
+.msh.on{transform:translateX(-50%) translateY(0)}
+.msh-hnd{width:36px;height:4px;background:var(--border);border-radius:2px;margin:8px auto 4px;flex-shrink:0}
+.msh-hd{padding:12px 16px 10px;border-bottom:1px solid var(--border-soft);flex-shrink:0;display:flex;align-items:flex-start;gap:12px}
+.msh-hdt{flex:1}
+.msh-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint);margin-bottom:2px}
+.msh-code{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--ink-soft)}
+.msh-title{margin:2px 0 0;font-size:18px;font-weight:600;line-height:1.25;letter-spacing:-.005em}
+.msh-x{background:var(--bg);border:none;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink-soft);cursor:pointer;flex-shrink:0}
+.msh-body{flex:1;overflow-y:auto;padding:14px 16px 20px;-webkit-overflow-scrolling:touch}
+.mchips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border-soft)}
+.mc{font-size:11px;padding:3px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--border);color:var(--ink-soft)}
+.mc.ln{color:#fff;border:none}.mc.el{background:var(--rec);color:#fff;border:none}
+.mwarn{background:#fef6f6;border:1px solid #ecc2c2;border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.mwarn h4{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--inc)}
+.mwarn ul{list-style:none;padding:0;margin:0;font-size:13px;line-height:1.4}
+.mwarn li{padding:3px 0;color:#6b1a1a}
+.mwarn .ct{font-weight:600;color:var(--inc)}
+.mwarn code{font-family:'IBM Plex Mono',monospace;background:rgba(197,48,48,.1);padding:1px 5px;border-radius:3px;font-size:11px}
+.mshsec{margin-bottom:16px}
+.mshsec h3{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.mshsec h3 .ct{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-weight:500;color:var(--ink-faint)}
+.sdot{width:8px;height:8px;border-radius:2px}
+.mshsec ul{list-style:none;padding:0;margin:0}
+.sli{padding:8px 10px;border-radius:6px;cursor:pointer;display:grid;grid-template-columns:72px 1fr;gap:10px;align-items:baseline;transition:background .1s;border:1px solid transparent}
+.sli:active{background:var(--bg);border-color:var(--border)}
+.sli .lc{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--ink-soft)}
+.sli .ln{font-size:13px;line-height:1.3}
+.sli.absent{cursor:default;color:var(--ink-faint)}
+.msh-acts{padding:12px 16px;border-top:1px solid var(--border-soft);flex-shrink:0;display:flex;gap:8px}
+.mbtn{flex:1;font-family:inherit;font-size:13px;font-weight:500;padding:10px 14px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--ink-soft)}
+.mbtn.del{color:var(--inc);border-color:#ecc2c2}
+.mbtn.ok{background:var(--ink);color:#fff;border-color:var(--ink)}
+.phelp{font-size:12px;color:var(--ink-soft);margin-bottom:12px}
+.plist{display:flex;flex-direction:column;gap:6px}
+.pitem{padding:10px 12px 10px 14px;border:1px solid var(--border-soft);border-radius:6px;cursor:pointer;position:relative;display:grid;grid-template-columns:1fr auto;gap:4px 8px;transition:background .08s,transform .08s;user-select:none}
+.pitem:active{background:var(--bg);transform:scale(.985)}
+.pitem::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 2px 2px 0;background:var(--cc,var(--ink-faint))}
+.pitem .pc{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--ink-soft)}
+.pitem .pm{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-faint)}
+.pitem .pn{font-size:13px;font-weight:500;line-height:1.3;grid-column:1/-1}
+.pitem .pl{font-size:10px;color:var(--ink-faint);grid-column:1/-1;margin-top:-2px}
+.pitem .chips{grid-column:1/-1;margin-top:4px}
+.pitem.asgn{opacity:.55;background:var(--bg)}
+.ainplan{font-size:10px;color:var(--rec);grid-column:1/-1;font-style:italic;margin-top:2px}
+.mleg-fab{position:fixed;bottom:16px;right:max(16px,calc(50vw - 199px));width:44px;height:44px;background:var(--ink);color:#fff;border:none;border-radius:50%;font-size:16px;font-weight:600;cursor:pointer;z-index:20;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+
+/* ── DESKTOP ── */
+.dr{padding:0 28px 64px}
+.dc{max-width:1600px;margin:0 auto}
+.dsth{position:sticky;top:0;z-index:50;background:var(--bg);padding-top:6px;padding-bottom:4px;margin-bottom:6px;box-shadow:var(--shadow)}
+.dh{margin-bottom:14px}
+.dh1{font-size:17px;font-weight:600;letter-spacing:-.015em;margin:0 0 3px}
+.dsub{font-size:12px;color:var(--ink-soft);margin:0}
+.dleg{display:flex;align-items:center;gap:18px;padding:6px 10px;background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow-x:auto}
+.dleg-sec{display:flex;align-items:center;gap:8px}
+.dleg-sec+.dleg-sec{border-left:1px solid var(--border);padding-left:18px}
+.dleg-lbl{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint)}
+.dleg-item{font-size:13px;display:flex;align-items:center;gap:6px}
+.dleg-sw{width:11px;height:11px;border-radius:3px}
+.dleg-ln{width:20px;height:0;flex-shrink:0;border-top-width:2px;border-top-style:solid}
+.dleg-ln.dsh{border-top-style:dashed}
+.dleg-inc{width:13px;height:13px;border-radius:2px;border:2px solid var(--inc);background:repeating-linear-gradient(135deg,rgba(197,48,48,.18) 0 3px,transparent 3px 6px)}
+.dleg-empty{width:13px;height:13px;border-radius:3px;border:1.5px dashed var(--ink-faint)}
+.dleg-stats{display:flex;gap:8px;margin-left:auto}
+.dmstat{display:flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:#fff}
+.dmstat-v{font-size:18px;font-weight:700;line-height:1}
+.dmstat-t{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint)}
+.dmstat.ok{color:#2e7d32}
+.dtabs{display:flex;gap:2px;border-bottom:1px solid var(--border)}
+.dtbtn{font-family:inherit;font-size:13px;font-weight:500;padding:10px 18px;cursor:pointer;background:transparent;border:none;color:var(--ink-soft);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .1s,border-color .1s}
+.dtbtn:hover{color:var(--ink)}
+.dtbtn.on{color:var(--ink);font-weight:600;border-bottom-color:var(--ink)}
+.dtsec{display:none}.dtsec.on{display:block}
+.dws{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:12px;align-items:flex-start}
+#dcw{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+#dcw svg{display:block;width:100%;height:auto}
+.dpanel{background:var(--panel);border:1px solid var(--border);border-radius:8px;font-size:13px;position:sticky;top:90px;max-height:calc(100vh - 110px);display:flex;flex-direction:column;overflow:hidden}
+.dph{padding:14px 18px 12px;border-bottom:1px solid var(--border-soft);flex-shrink:0}
+.dph-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint);margin-bottom:4px}
+.dph h2{margin:0;font-size:16px;font-weight:600;line-height:1.25}
+.dph-sub{margin-top:4px;font-size:12px;color:var(--ink-soft)}
+.dpb{flex:1;overflow-y:auto;padding:14px 18px 18px}
+.dpacts{padding:10px 18px;border-top:1px solid var(--border-soft);display:flex;gap:8px;flex-shrink:0}
+.dbtn{font-family:inherit;font-size:12px;font-weight:500;padding:7px 12px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--ink-soft);transition:all .1s}
+.dbtn:hover{background:var(--bg);color:var(--ink);border-color:var(--ink-faint)}
+.dbtn.ok{background:var(--ink);color:#fff;border-color:var(--ink)}
+.dwarn{background:#fef6f6;border:1px solid #ecc2c2;border-radius:6px;padding:10px 12px;margin-bottom:14px}
+.dwarn h4{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin:0 0 6px;color:var(--inc)}
+.dwarn ul{list-style:none;padding:0;margin:0;font-size:12px;line-height:1.45}
+.dwarn li{padding:3px 0;color:#6b1a1a}
+.dwarn .ct{font-weight:600;color:var(--inc)}
+.dwarn code{font-family:'IBM Plex Mono',monospace;background:rgba(197,48,48,.1);padding:1px 5px;border-radius:3px;font-size:11px}
+/* svg */
+.crect{cursor:pointer;transition:filter .15s ease,opacity .2s ease}
+.crect:hover{filter:brightness(1.08)}
+.crect.empty{fill:#fafafa;stroke:var(--ink-faint);stroke-width:1.5;stroke-dasharray:5 4}
+.crect.empty:hover{fill:#f4f3f0;stroke:var(--ink)}
+.crect.aslot{stroke:var(--ink);stroke-width:2.5;stroke-dasharray:none}
+.eslot-t{font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;fill:var(--ink-faint);pointer-events:none}
+.eslot-m{font-family:'IBM Plex Mono',monospace;font-size:10px;fill:var(--ink-faint);pointer-events:none}
+.cg.dim .crect{opacity:.25}
+.cg.dim text{opacity:.35}
+.ccode{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;fill:#fff;pointer-events:none}
+.cname{font-weight:400;font-size:15px;fill:rgba(255,255,255,.92);pointer-events:none}
+.cects{font-family:'IBM Plex Mono',monospace;font-size:10px;fill:rgba(255,255,255,.75);pointer-events:none}
+.rmbtn{cursor:pointer}
+.rmbtn circle{fill:rgba(0,0,0,.18);transition:fill .1s}
+.rmbtn:hover circle{fill:rgba(0,0,0,.5)}
+.rmbtn text{font-family:'IBM Plex Sans',sans-serif;font-size:11px;font-weight:600;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.sring{fill:none;stroke:var(--ink);stroke-width:2.5;pointer-events:none}
+.iover{fill:url(#ihatch);stroke:var(--inc);stroke-width:2.5;pointer-events:none}
+.edge{fill:none;pointer-events:none}
+.edge.required{stroke:var(--req);stroke-width:2.2}
+.edge.recommended{stroke:var(--rec);stroke-width:2;stroke-dasharray:6 4}
+.edge.one_of{stroke:var(--one);stroke-width:2;stroke-dasharray:2 4}
+.axlbl{font-family:'IBM Plex Sans',sans-serif;fill:var(--ink-soft)}
+.gline{stroke:var(--border-soft);stroke-width:1}
+.aline{stroke:var(--border);stroke-width:1}
+.wbadge circle{fill:#d97706;stroke:#fff;stroke-width:1.5;cursor:pointer}
+.wbadge text{font-family:'IBM Plex Sans',sans-serif;font-size:11px;font-weight:700;fill:#fff;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+/* panel pool */
+.dpflt{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.dpchip{font-size:10px;padding:2px 7px;border-radius:999px;background:var(--bg);border:1px solid var(--border);color:var(--ink-soft);cursor:pointer;transition:all .1s;user-select:none}
+.dpchip:hover{border-color:var(--ink-faint)}
+.dpchip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.dpcnt{font-size:11px;color:var(--ink-faint);margin-bottom:10px}
+.dplist{display:flex;flex-direction:column;gap:6px}
+.dpi{padding:8px 10px;border-radius:5px;cursor:pointer;border:1px solid var(--border-soft);display:grid;grid-template-columns:6px 1fr auto;gap:10px;align-items:center;transition:all .1s}
+.dpi:hover{border-color:var(--ink-faint);background:var(--bg)}
+.dpi .pbar{width:4px;min-height:36px;border-radius:2px;align-self:stretch}
+.dpi .pcode{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--ink-soft)}
+.dpi .pname{font-size:12px;line-height:1.3}
+.dpi .pmeta{font-size:10px;color:var(--ink-faint);font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+.dpi .pchips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.dpi.asgn{opacity:.55;cursor:default;background:var(--bg)}
+.dpi.sel{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink) inset;background:var(--bg)}
+.dpmcode{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--ink-soft)}
+.dpmeta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border-soft)}
+.dmc{font-size:11px;padding:3px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--border);color:var(--ink-soft)}
+.dmc.ln{color:#fff;border:none}
+.dpsec{margin-bottom:14px}
+.dpsec h3{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.dpsec ul{list-style:none;padding:0;margin:0}
+.dpsec li{padding:6px 8px;border-radius:4px;cursor:pointer;transition:background .1s;display:flex;gap:8px;align-items:baseline;line-height:1.35}
+.dpsec li:hover{background:var(--bg)}
+.dpsec li .lc{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--ink-soft);flex-shrink:0;min-width:70px}
+.dpsec li .ln{font-size:12px}
+.dpsec li.absent{color:var(--ink-faint);cursor:default}
+.dpsec li.absent:hover{background:transparent}
+/* tooltip */
+#dtt{position:absolute;pointer-events:none;background:#1a1a1a;color:#fff;padding:11px 13px 12px;border-radius:7px;font-size:12px;line-height:1.45;max-width:320px;min-width:220px;box-shadow:0 10px 28px rgba(0,0,0,.22);opacity:0;transition:opacity .12s ease;z-index:200}
+#dtt .tn{font-weight:600;margin-bottom:4px;font-size:13px}
+#dtt .tm{color:rgba(255,255,255,.62);font-size:11px;margin-bottom:2px}
+#dtt .tl{display:inline-block;padding:1px 7px;border-radius:999px;font-size:10px;margin-top:6px;color:#fff;font-weight:500}
+#dtt .tdiv{height:1px;background:rgba(255,255,255,.12);margin:9px -2px}
+#dtt .tsec{margin-bottom:7px}
+#dtt .tsh{font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;color:rgba(255,255,255,.55);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+#dtt .tdot{width:7px;height:7px;border-radius:2px;display:inline-block}
+#dtt .tlist{font-size:11.5px;color:rgba(255,255,255,.92);line-height:1.45}
+#dtt .ti{display:block;padding:1px 0}
+#dtt .ti b{color:rgba(255,255,255,.95);font-size:10.5px;margin-right:4px;font-family:'IBM Plex Mono',monospace}
+#dtt .ti .tin{color:rgba(255,255,255,.7);font-size:11px}
+#dtt .tcfl{background:rgba(197,48,48,.18);border:1px solid rgba(197,48,48,.5);padding:7px 9px;border-radius:5px;margin-bottom:8px}
+#dtt .tch{color:#ffb4b4;font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+#dtt .tci{font-size:11px;color:rgba(255,255,255,.92);padding:1px 0}
+#dtt .tci b{color:#ffd0d0;font-size:10.5px;font-family:'IBM Plex Mono',monospace}
+#dtt .thint{font-size:10px;color:rgba(255,255,255,.5);font-style:italic;margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,.1)}
+/* explorer */
+.dexl{display:grid;grid-template-columns:360px minmax(0,1fr);gap:16px;align-items:flex-start}
+.dexsb{background:var(--panel);border:1px solid var(--border);border-radius:8px;position:sticky;top:260px;max-height:calc(100vh - 280px);display:flex;flex-direction:column;overflow:hidden}
+.dexf{padding:6px 12px 6px;border-bottom:1px solid var(--border-soft);flex-shrink:0}
+.dexsrch{width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--panel);font-family:inherit;font-size:12px;color:var(--ink)}
+.dexsrch:focus{outline:none;border-color:var(--ink-faint)}
+.dfg{margin-top:0}.dfg+.dfg{margin-top:5px}
+.dfl{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);margin-bottom:3px}
+.dfcs{display:flex;flex-wrap:wrap;gap:3px}
+.dexcrs{flex:1;overflow-y:auto;padding:12px 16px 16px}
+.dexmain{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:20px;min-height:400px}
+.dexempty{display:flex;align-items:center;justify-content:center;min-height:360px;text-align:center;color:var(--ink-faint);font-size:14px;line-height:1.5}
+.dexempty .hi{font-size:28px;margin-bottom:10px;opacity:.5}
+.dcv{display:grid;grid-template-columns:1fr 24px 1fr 24px 1fr;gap:0;align-items:stretch;margin-bottom:28px}
+.dcc{display:flex;flex-direction:column;min-width:0}
+.dcc-h{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint);font-weight:600;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border-soft)}
+.dcc.ctr .dcc-h{text-align:center}
+.dcca{display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:18px;padding-top:30px}
+.dccs{display:flex;flex-direction:column;gap:8px;flex:1}
+.dcc.ctr .dccs{justify-content:center;align-items:stretch;padding:0 4px}
+.dccard{background:var(--panel);border:1px solid var(--border-soft);border-radius:6px;padding:10px 12px 10px 14px;cursor:pointer;position:relative;transition:all .1s}
+.dccard:hover{border-color:var(--ink-faint);background:var(--bg)}
+.dccard::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:0 2px 2px 0;background:var(--cc,var(--ink-faint))}
+.dccard .cc{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--ink-soft)}
+.dccard .cn{font-size:12px;font-weight:500;margin-top:2px;line-height:1.3}
+.dccard .ck{font-size:10px;color:var(--ink-faint);margin-top:2px}
+.dccard.absent{background:var(--bg);cursor:default;border-style:dashed}
+.dcctr{background:var(--cc,var(--ink));color:#fff;border:none;border-radius:8px;padding:14px 16px;box-shadow:0 4px 14px rgba(0,0,0,.08)}
+.dcctr .cc{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:rgba(255,255,255,.8)}
+.dcctr .cn{font-size:16px;font-weight:600;margin-top:2px;line-height:1.25;letter-spacing:-.005em}
+.dcctr .cm{font-size:11px;color:rgba(255,255,255,.78);margin-top:6px}
+.dcce{font-size:12px;color:var(--ink-faint);font-style:italic;padding:16px 0}
+.dicb{margin-top:10px;padding-top:18px;border-top:1px solid var(--border-soft)}
+.dicb h3{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;margin:0 0 4px;color:var(--inc);display:flex;align-items:center;gap:8px}
+.dics{font-size:12px;color:var(--ink-soft);margin:0 0 12px}
+.dicl{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.dice{font-size:12px;color:var(--ink-faint);font-style:italic}
+</style>
+</head>
+<body>
+
+<!-- MOBILE -->
+<div class="mr" id="mr">
+  <header class="mhdr">
+    <h1 class="mtitle">BCS Curriculum Planner</h1>
+    <div class="mstats">
+      <div class="mstat" id="ms-ects"><div class="mstat-num"><span id="ms-ects-v">0</span></div><div class="mstat-lbl">ECTS</div></div>
+      <div class="mstat" id="ms-el"><div class="mstat-num"><span id="ms-el-v">0/0</span></div><div class="mstat-lbl">Electives</div></div>
+      <div class="mstat" id="ms-cfl"><div class="mstat-num"><span id="ms-cfl-v">0</span></div><div class="mstat-lbl">Conflicts</div></div>
+    </div>
+    <div class="mtabs">
+      <button class="tbtn on" data-tab="mt-plan">Planner</button>
+      <button class="tbtn" data-tab="mt-exp">Course explorer</button>
+    </div>
+    <div class="mleg" id="mleg"></div>
+  </header>
+  <section class="mtsec on" id="mt-plan"><main class="mplan" id="mgrid"></main></section>
+  <section class="mtsec" id="mt-exp">
+    <div class="mexp on" id="me-list">
+      <div class="mflt">
+        <div class="mflt-row"><div class="mflt-lbl">Search</div><div class="mflt-chips" style="flex:1"><input type="text" id="msrch" placeholder="Search name or code…" class="msrch"/></div></div>
+        <div class="mflt-row"><div class="mflt-lbl">Year</div><div class="mflt-chips" id="mf-year"></div></div>
+        <div class="mflt-row"><div class="mflt-lbl">Quarter</div><div class="mflt-chips" id="mf-qtr"></div></div>
+        <div class="mflt-row"><div class="mflt-lbl">Track</div><div class="mflt-chips" id="mf-track"></div></div>
+        <div class="mflt-row"><div class="mflt-lbl">Line</div><div class="mflt-chips" id="mf-line"></div></div>
+      </div>
+      <div class="mresbar"><span id="mrescnt">0 courses</span><span>Tap to explore</span></div>
+      <div class="meclist" id="meclist"></div>
+    </div>
+    <div class="mexp" id="me-detail">
+      <div class="mdhdr"><button class="mbk" id="mbk">←</button><span class="mdhdr-t">Course details</span></div>
+      <div class="mdbody" id="mdbody"></div>
+    </div>
+  </section>
+  <button class="mleg-fab" id="mlegfab">i</button>
+</div>
+<div class="mbk2" id="mbk2"></div>
+<div class="msh" id="msh"><div class="msh-hnd"></div><div id="msh-host"></div></div>
+
+<!-- DESKTOP -->
+<div class="dr">
+  <div class="dc">
+    <div class="dsth">
+      <header class="dh">
+        <h1 class="dh1">Bachelor of Computer Science — Curriculum Planner &amp; Course Explorer</h1>
+        <p class="dsub">Plan your degree and explore prerequisite chains. Hover any course for details.</p>
+      </header>
+      <div style="display:flex;align-items:center;gap:0;margin-bottom:6px">
+        <div class="dleg">
+          <div class="dleg-sec"><span class="dleg-lbl">Learning line</span><div id="dleg-lines" style="display:flex;flex-wrap:wrap;gap:6px 14px"></div></div>
+          <div class="dleg-sec">
+            <span class="dleg-lbl">Relationship</span>
+            <div class="dleg-item"><span class="dleg-ln" style="border-top-color:var(--req)"></span>required</div>
+            <div class="dleg-item"><span class="dleg-ln dsh" style="border-top-color:var(--rec)"></span>recommended</div>
+            <div class="dleg-item"><span class="dleg-inc"></span>incompatible</div>
+          </div>
+          <div class="dleg-sec"><span class="dleg-lbl">Slot</span><div class="dleg-item"><span class="dleg-empty"></span>empty elective</div></div>
+        </div>
+        <div class="dleg-stats">
+          <div class="dmstat"><span class="dmstat-v" id="ds-ects">0</span><span class="dmstat-t">ECTS</span></div>
+          <div class="dmstat"><span class="dmstat-v" id="ds-el">0/0</span><span class="dmstat-t">Electives</span></div>
+          <div class="dmstat ok" id="ds-cfl-w"><span class="dmstat-v" id="ds-cfl">0</span><span class="dmstat-t">Conflicts</span></div>
+        </div>
+      </div>
+      <div class="dtabs">
+        <button class="dtbtn on" data-tab="dt-plan">Planner</button>
+        <button class="dtbtn" data-tab="dt-exp">Course explorer</button>
+      </div>
+    </div>
+    <section class="dtsec on" id="dt-plan">
+      <div class="dws"><div id="dcw"><div id="dc"></div></div><aside class="dpanel" id="dpanel"></aside></div>
+    </section>
+    <section class="dtsec" id="dt-exp">
+      <div class="dexl">
+        <aside class="dexsb">
+          <div class="dexf">
+            <div class="dfg"><div class="dfl">Search</div><input type="text" id="dexsrch" class="dexsrch" placeholder="Search by code or name…"></div>
+            <div class="dfg"><div class="dfl">Year</div><div class="dfcs" id="df-year"></div></div>
+            <div class="dfg"><div class="dfl">Quarter</div><div class="dfcs" id="df-qtr"></div></div>
+            <div class="dfg"><div class="dfl">Track</div><div class="dfcs" id="df-track"></div></div>
+            <div class="dfg"><div class="dfl">Learning line</div><div class="dfcs" id="df-line"></div></div>
+          </div>
+          <div class="dexcrs"><div class="dpcnt" id="dexcnt">0 courses</div><div class="dplist" id="dexlist"></div></div>
+        </aside>
+        <main class="dexmain" id="dexmain"></main>
+      </div>
+    </section>
+  </div>
+</div>
+<div id="dtt"></div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+// ── LAYOUT ───────────────────────────────────────────────────────────────────
+// Switches between mobile (<768px) and desktop layouts via body.mob class.
+const BP=768;
+function applyLay(){document.body.classList.toggle('mob',window.innerWidth<BP);}
+applyLay();window.addEventListener('resize',applyLay);
+
+// ── CONSTANTS ────────────────────────────────────────────────────────────────
+// LC: learning-line → colour map (used for card/swatch colours throughout).
+// FP: fallback palette for any line not listed in LC.
+// DM: dependency-type metadata (label + colours for chips/arrows/tooltips).
+// DC: SVG grid geometry — total width, year-label width, quarter header height,
+//     card height/padding, row padding, card horizontal padding.
+const LC={'Foundations':'#0B3D91','Algorithms & Theory of Computing':'#1E5E22','Systems':'#652A8F','Software Development':'#A81B60','External':'#D35D15'};
+const FP=['#9C2C2C','#7A5B30','#2B5876','#6B4226'];
+const DM={required:{label:'Required prerequisites',color:'#1a4d7a',dot:'#5a8ec2'},recommended:{label:'Recommended',color:'#5b8c5a',dot:'#8ec48d'},incompatible:{label:'Incompatible with',color:'#c53030',dot:'#e57878'}};
+const DC={w:1400,yw:80,qh:52,ch:62,cp:6,rp:14,pp:6};
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+// esc: HTML-escape for safe innerHTML injection.
+// trunc: truncate string to n chars with ellipsis.
+// fit: truncate to fit a pixel width given approximate char width px.
+// isESlot / isCSlot / isCap / isEl: course-type predicates.
+// qLbl / yLbl: human-readable quarter / year labels for a course object.
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const trunc=(s,n)=>!s?'':s.length>n?s.slice(0,n-1)+'…':s;
+const fit=(t,mw,px)=>{const mc=Math.floor(mw/(px*.55));return t.length>mc?t.slice(0,Math.max(1,mc-1))+'…':t;};
+const isESlot=c=>typeof c.id==='string'&&c.id.startsWith('Elective');
+const isCSlot=c=>c.id==='CapstoneSlot';
+const isCap=c=>['2IRR60','2IRR70','2IRR80'].includes(c.id);
+const isEl=c=>c.track==='Elective';
+const qLbl=c=>{const q=c.quarters||[];return!q.length?'—':q.length>1?'Q'+q.join('–Q'):'Q'+q[0];};
+const yLbl=c=>isEl(c)?'Elective':'Y'+c.year;
+
+// ── LOAD DATA ────────────────────────────────────────────────────────────────
+// Fetches course catalogue and dependency graph, then boots the app.
+Promise.all([d3.json('courses_unified.json'),d3.json('dependencies.json')]).then(([ac,ad])=>init(ac,ad));
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+// S: global app state (populated by init, consumed by buildM / buildD).
+// DR: desktop re-render callback, set by buildD, called by mobile actions
+//     that mutate shared state (elective assignments, capstone selection).
+let S=null,DR=null;
+
+function init(ac,ad){
+  // Partition courses into main programme vs electives vs capstones.
+  const main=ac.filter(c=>c.track==='MainProgram');
+  const elc=ac.filter(c=>c.track==='Elective');
+  const caps=main.filter(isCap);
+  const nonc=main.filter(c=>!isCap(c));
+
+  // Inject a virtual CapstoneSlot placeholder so the grid has a drop target.
+  const cslot={id:'CapstoneSlot',name:'Capstone Specialization',year:3,quarters:[1],ects:5,learningLine:'All',track:'MainProgram'};
+  const gc=[...nonc,cslot];           // grid courses (excludes actual capstones)
+  const eslots=gc.filter(isESlot);    // elective slot placeholders
+
+  // Build id → course lookup (includes capstones and the virtual slot).
+  const byId=new Map(ac.map(c=>[c.id,c]));
+  byId.set('CapstoneSlot',cslot);caps.forEach(c=>byId.set(c.id,c));
+
+  // Build outgoing (source → targets) and incoming (target → sources) edge maps.
+  const out=new Map(),inc=new Map();
+  const ai=(m,k,v)=>{if(!m.has(k))m.set(k,[]);m.get(k).push(v);};
+  ad.forEach(d=>{ai(out,d.source,{id:d.target,type:d.dependency_type});ai(inc,d.target,{id:d.source,type:d.dependency_type});});
+
+  const fb=d3.scaleOrdinal(FP);
+  const col=l=>LC[l]||fb(l);   // learning-line → hex colour
+  const res=id=>byId.get(id)||null;
+
+  // asgn: elective slot id → chosen elective course id.
+  // capsel: id of the selected capstone (null if none chosen).
+  const asgn=new Map();
+  let capsel=null;
+
+  // ec: resolve a slot to its effective display course.
+  //     Elective slots return the assigned course (with slot metadata injected).
+  //     CapstoneSlot returns the chosen capstone. Everything else is a pass-through.
+  function ec(slot){
+    if(isCSlot(slot))return capsel?byId.get(capsel):slot;
+    if(!isESlot(slot))return slot;
+    const eid=asgn.get(slot.id);if(!eid)return slot;
+    const e=byId.get(eid);return e?{...e,_slot:slot.id,_fe:true,year:slot.year,quarters:slot.quarters}:slot;
+  }
+
+  // dm: dependency map for a course — groups outgoing edges by type,
+  //     plus incoming 'required' edges as 'unl' (courses this one unlocks).
+  function dm(id){
+    const o=out.get(id)||[],i=inc.get(id)||[];
+    return{req:o.filter(d=>d.type==='required'),rec:o.filter(d=>d.type==='recommended'),one:o.filter(d=>d.type==='one_of'),inc:o.filter(d=>d.type==='incompatible'),unl:i.filter(d=>d.type==='required')};
+  }
+
+  // mch: render mini dependency-count chips (prereqs / unlocks / incompatible).
+  //      cx=true uses compact single-character labels for card use.
+  function mch(id,cx=false){
+    const m=dm(id),u=new Set(m.unl.map(d=>d.id)),cs=[];
+    if(m.req.length)cs.push(`<span class="chip req">→ ${m.req.length}${cx?'':' prereq'+(m.req.length===1?'':'s')}</span>`);
+    if(u.size)cs.push(`<span class="chip unl">← ${u.size}${cx?'':' unlock'+(u.size===1?'':'s')}</span>`);
+    if(m.inc.length)cs.push(`<span class="chip inc">⊘ ${m.inc.length}${cx?'':' incompat'}</span>`);
+    return cs.length?`<div class="chips">${cs.join('')}</div>`:'';
+  }
+
+  // plan: returns the Set of course ids currently in the plan
+  //       (all fixed main-programme courses + assigned electives + capstone).
+  function plan(){
+    const p=new Set();
+    gc.forEach(s=>{if(isCSlot(s)){if(capsel)p.add(capsel);}else if(!isESlot(s))p.add(s.id);else if(asgn.has(s.id))p.add(asgn.get(s.id));});
+    return p;
+  }
+
+  // cfls: returns an array of conflict objects {c, t, o} where
+  //       c = course id, t = 'mr' (missing required) | 'ic' (incompatible), o = other course id.
+  function cfls(){
+    const p=plan(),c=[];
+    p.forEach(id=>(out.get(id)||[]).forEach(d=>{
+      if(d.type==='required'&&!p.has(d.id))c.push({c:id,t:'mr',o:d.id});
+      else if(d.type==='incompatible'&&p.has(d.id)&&id<d.id)c.push({c:id,t:'ic',o:d.id});
+    }));
+    return c;
+  }
+
+  // pred: conflict preview — if cid were added to the plan, what would break?
+  //       Returns {ic: [incompatible ids], mr: [missing-required ids]}.
+  function pred(cid){
+    const p=plan();p.add(cid);
+    const r={ic:[],mr:[]};
+    (out.get(cid)||[]).forEach(d=>{if(d.type==='incompatible'&&p.has(d.id)&&d.id!==cid)r.ic.push(d.id);else if(d.type==='required'&&!p.has(d.id))r.mr.push(d.id);});
+    p.forEach(pid=>{if(pid===cid)return;(out.get(pid)||[]).forEach(d=>{if(d.type==='incompatible'&&d.id===cid&&!r.ic.includes(pid))r.ic.push(pid);});});
+    return r;
+  }
+
+  S={asgn,get capsel(){return capsel;},setC(id){capsel=id;},ac,elc,ad,gc,eslots,caps,nonc,byId,out,inc,col,res,ec,dm,mch,plan,cfls,pred};
+  buildM();buildD();
+}
+
+// ── SHARED SUMMARY ───────────────────────────────────────────────────────────
+// Recomputes total ECTS, elective fill count, and conflict count,
+// then updates the stat widgets in both mobile header and desktop legend bar.
+function updateSummary(){
+  const p=S.plan();let ects=0;
+  p.forEach(id=>{const c=S.byId.get(id);if(c)ects+=c.ects;});
+  const asgnd=S.eslots.filter(s=>S.asgn.has(s.id)).length;
+  const tot=S.eslots.length;
+  const cfcount=S.cfls().length;
+  const elStr=`${asgnd}/${tot}`;
+  // mobile stat widgets
+  document.getElementById('ms-ects-v').textContent=ects;
+  document.getElementById('ms-el-v').textContent=elStr;
+  document.getElementById('ms-cfl-v').textContent=cfcount;
+  document.getElementById('ms-el').className='mstat'+(asgnd===tot?' ok':'');
+  document.getElementById('ms-cfl').className='mstat'+(cfcount?' warn':' ok');
+  // desktop stat widgets
+  document.getElementById('ds-ects').textContent=ects;
+  document.getElementById('ds-el').textContent=elStr;
+  document.getElementById('ds-cfl').textContent=cfcount;
+  const dcs=document.getElementById('ds-cfl-w');
+  if(cfcount){dcs.classList.remove('ok');dcs.style.color='#c53030';}else{dcs.classList.add('ok');dcs.style.color='';}
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MOBILE
+// ══════════════════════════════════════════════════════════════════════════════
+function buildM(){
+  const{asgn,byId,gc,eslots,caps,col,ec,dm,mch,cfls,pred,res}=S;
+  const ep=S.ac.filter(c=>!isESlot(c)&&c.id!=='CapstoneSlot');
+
+  // lines: unique learning lines for filter chips — excludes 'All' (virtual).
+  // FIX: 'External' is intentionally kept so courses with external prereqs
+  //      can be filtered by that line in the explorer.
+  const lines=[...new Set(ep.map(c=>c.learningLine))].filter(l=>l!=='All').sort();
+  const es={q:'',sel:null,yr:'all',qr:'all',tr:'all',ln:'all'};
+
+  // Render learning-line colour swatches in the sticky header legend.
+  // All entries in LC are shown, including External.
+  document.getElementById('mleg').innerHTML=`<div class="mleg-group"><span class="mleg-lbl">Learning line</span>${Object.entries(LC).map(([l,c])=>`<div class="mleg-item"><span class="mleg-dot" style="background:${c}"></span><span>${esc(l)}</span></div>`).join('')}</div>`;
+
+  // Tab switching: Planner ↔ Course explorer
+  document.querySelectorAll('.mr .tbtn').forEach(b=>b.addEventListener('click',()=>{
+    const t=b.getAttribute('data-tab');
+    document.querySelectorAll('.mr .tbtn').forEach(x=>x.classList.toggle('on',x===b));
+    document.querySelectorAll('.mtsec').forEach(s=>s.classList.toggle('on',s.id===t));
+    window.scrollTo(0,0);
+  }));
+
+  // Bottom sheet: open injects HTML into #msh-host, close resets classes.
+  const sh=document.getElementById('msh'),bk=document.getElementById('mbk2'),host=document.getElementById('msh-host');
+  const open=h=>{host.innerHTML=h;sh.classList.add('on');bk.classList.add('on');document.body.classList.add('sh-open');};
+  const close=()=>{sh.classList.remove('on');bk.classList.remove('on');document.body.classList.remove('sh-open');};
+  bk.addEventListener('click',close);
+
+  // grid: rebuilds the planner view — groups courses by year then quarter,
+  //       renders a card per slot, highlights any conflicted courses.
+  function grid(){
+    const g=document.getElementById('mgrid');g.innerHTML='';
+    const ci=new Set();cfls().forEach(c=>{ci.add(c.c);ci.add(c.o);});
+    [...new Set(gc.map(c=>c.year))].sort((a,b)=>a-b).forEach(y=>{
+      const yb=document.createElement('section');yb.className='myear';
+      yb.innerHTML=`<h2 class="myear-h">Year ${y}</h2>`;
+      [1,2,3,4].forEach(q=>{
+        const inq=gc.filter(c=>c.year===y&&c.quarters.includes(q));if(!inq.length)return;
+        const qb=document.createElement('div');qb.className='mqtr';qb.innerHTML=`<h3 class="mqtr-h">Quarter ${q}</h3>`;
+        const st=document.createElement('div');st.className='mstack';
+        // Sort: fixed courses first, elective slots after, capstone slot last.
+        inq.sort((a,b)=>(isCSlot(a)?2:isESlot(a)?1:0)-(isCSlot(b)?2:isESlot(b)?1:0)).forEach(s=>st.appendChild(card(s,ci)));
+        qb.appendChild(st);yb.appendChild(qb);
+      });
+      g.appendChild(yb);
+    });
+  }
+
+  // card: renders a single planner card for a slot.
+  //       Empty elective/capstone slots get a dashed "choose" card.
+  //       Filled slots show course info + conflict badge if needed.
+  function card(slot,ci){
+    const e=ec(slot);
+    const mt=(isESlot(slot)&&!asgn.has(slot.id))||(isCSlot(slot)&&!S.capsel);
+    const fe=isESlot(slot)&&asgn.has(slot.id);
+    const fc=isCSlot(slot)&&!!S.capsel;
+    const el=document.createElement('div');
+    if(mt){
+      el.className='mcard empty';
+      el.innerHTML=`<div class="etitle">+ ${isCSlot(slot)?'Choose capstone':'Choose elective'}</div><div class="emeta">Q${slot.quarters[0]} · ${slot.ects} ECTS</div>`;
+      el.onclick=()=>isCSlot(slot)?cpicker():epicker(slot.id);
+    } else {
+      const hw=ci.has(e.id);
+      el.className='mcard'+(hw?' hw':'');
+      el.style.setProperty('--cc',col(e.learningLine));
+      el.innerHTML=`<div class="mc-code">${esc(e.id)}</div><div class="mc-ects">${e.ects} ECTS</div><div class="mc-name">${esc(e.name)}</div><div class="mc-line">${esc(e.learningLine)}${fe?' · Elective':fc?' · Capstone':''}</div>${mch(e.id,true)}${hw?'<div class="mc-warn">!</div>':''}${(fe||fc)?'<button class="mc-rm" aria-label="Unassign">×</button>':''}`;
+      el.onclick=()=>csheet(slot.id);
+      // × button: unassign directly without opening the detail sheet
+      if(fe||fc){
+        el.querySelector('.mc-rm').onclick=ev=>{
+          ev.stopPropagation();
+          if(fc)S.setC(null);else asgn.delete(slot.id);
+          grid();updateSummary();if(DR)DR();
+        };
+      }
+    }
+    return el;
+  }
+
+  // csheet: opens the bottom sheet for a course slot.
+  //         pvid (optional) overrides with an elective preview (no slot context).
+  function csheet(sid,pvid){
+    const isPv=!!pvid;
+    let e,slot,lid,fe,fc;
+    if(isPv){e=byId.get(pvid);if(!e)return;lid=e.id;fe=fc=false;}
+    else{slot=byId.get(sid)||(sid==='CapstoneSlot'?{id:'CapstoneSlot',year:3,quarters:[1],ects:5,learningLine:'All',track:'MainProgram'}:null);if(!slot)return;e=ec(slot);lid=e.id;fe=!!e._fe;fc=isCSlot(slot)&&!!S.capsel;}
+    const o=S.out.get(lid)||[];const bt=d3.group(o,d=>d.type);const ic=(S.inc.get(lid)||[]).filter(d=>d.type==='required');
+    const cv=isPv?[]:cfls().filter(c=>c.c===e.id||c.o===e.id);
+    let h=`<div class="msh-hd"><div class="msh-hdt"><div class="msh-lbl">${isPv?'Elective preview':'Course details'}</div><div class="msh-code">${esc(e.id)}</div><h2 class="msh-title">${esc(e.name)}</h2></div><button class="msh-x">×</button></div><div class="msh-body">`;
+    h+=`<div class="mchips"><span class="mc ln" style="background:${col(e.learningLine)}">${esc(e.learningLine)}</span>${slot?`<span class="mc">Year ${slot.year}</span>`:''}<span class="mc">${isPv?`Q${e.quarters[0]}`:(slot.quarters.length>1?'Q'+slot.quarters.join('–Q'):'Q'+slot.quarters[0])}</span><span class="mc">${e.ects} ECTS</span><span class="mc">${esc(e.track||'MainProgram')}</span>${fe?'<span class="mc el">Elective pick</span>':''}${fc?'<span class="mc" style="background:var(--ink-soft);color:#fff;border:none">Capstone</span>':''}</div>`;
+    if(cv.length){h+=`<div class="mwarn"><h4>⚠ ${cv.length} conflict${cv.length===1?'':'s'}</h4><ul>`;cv.forEach(c=>{const oc=byId.get(c.c===e.id?c.o:c.c);h+=`<li><span class="ct">${c.t==='ic'?'Incompatible':'Missing prereq'}</span>: <code>${c.c===e.id?c.o:c.c}</code> — ${esc(oc?oc.name:'(unknown)')}</li>`;});h+=`</ul></div>`;}
+    ['required','recommended','one_of','incompatible'].forEach(t=>{const l=bt.get(t)||[];if(!l.length)return;const m=DM[t]||{label:t,color:'#888'};h+=`<div class="mshsec"><h3><span class="sdot" style="background:${m.color}"></span>${m.label}<span class="ct">${l.length}</span></h3><ul>${l.map(d=>sli(d.id)).join('')}</ul></div>`;});
+    if(ic.length){const s=new Set(),dd=ic.filter(d=>s.has(d.id)?false:(s.add(d.id),true));h+=`<div class="mshsec"><h3><span class="sdot" style="background:#5a5a5a"></span>Unlocks<span class="ct">${dd.length}</span></h3><ul>${dd.map(d=>sli(d.id)).join('')}</ul></div>`;}
+    h+=`</div><div class="msh-acts">`;
+    if(fe)h+=`<button class="mbtn del" data-a="ue">Unassign</button>`;
+    if(fc)h+=`<button class="mbtn del" data-a="uc">Unassign</button>`;
+    h+=`<button class="mbtn ok" data-a="cl">Done</button></div>`;
+    open(h);
+    sh.querySelector('.msh-x').onclick=close;
+    sh.querySelectorAll('.sli:not(.absent)').forEach(li=>li.onclick=()=>navc(li.dataset.id));
+    sh.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{
+      const a=b.dataset.a;if(a==='cl')close();
+      if(a==='ue'&&slot){asgn.delete(slot.id);close();grid();updateSummary();if(DR)DR();}
+      if(a==='uc'){S.setC(null);close();grid();updateSummary();if(DR)DR();}
+    });
+  }
+
+  // sli: renders a single list-item for a dependency (or "External" if not in catalogue).
+  function sli(id){const c=byId.get(id);if(!c)return`<li class="sli absent"><span class="lc">${esc(id)}</span><span class="ln">External</span></li>`;return`<li class="sli" data-id="${esc(id)}"><span class="lc">${esc(c.id)}</span><span class="ln">${esc(c.name)}${isEl(c)?' (elective)':''}</span></li>`;}
+
+  // navc: navigate to a course by id — resolves whether it's an elective,
+  //       a fixed slot, or the capstone, then opens the right sheet.
+  function navc(id){const c=byId.get(id);if(!c||isESlot(c)||isCSlot(c))return;if(isEl(c)){csheet(null,id);return;}for(const[k,v]of asgn)if(v===id){csheet(k);return;}if(S.capsel===id){csheet('CapstoneSlot');return;}csheet(id);}
+
+  // epicker: sheet that lists all electives for a given quarter,
+  //          lets the user pick one to assign to the slot sid.
+  function epicker(sid){
+    const slot=byId.get(sid),q=slot.quarters[0];
+    const mt=S.elc.filter(c=>c.quarters[0]===q).sort((a,b)=>a.id.localeCompare(b.id));
+    const as=new Set(asgn.values());
+    let h=`<div class="msh-hd"><div class="msh-hdt"><div class="msh-lbl">Choose elective</div><h2 class="msh-title">Year ${slot.year}, Q${q}</h2></div><button class="msh-x">×</button></div><div class="msh-body"><div class="phelp">${mt.length} elective course${mt.length===1?'':'s'} for Q${q}.</div><div class="plist">`;
+    if(!mt.length)h+=`<p style="color:var(--ink-faint);font-style:italic;font-size:13px">No elective courses for Q${q}.</p>`;
+    else mt.forEach(c=>{
+      const ia=as.has(c.id);const fc=ia?null:pred(c.id);
+      const m=dm(c.id),u=new Set(m.unl.map(d=>d.id)),cs=[];
+      if(m.req.length)cs.push(`<span class="chip req">→ ${m.req.length} prereq${m.req.length===1?'':'s'}</span>`);
+      if(u.size)cs.push(`<span class="chip unl">← unlocks ${u.size}</span>`);
+      if(m.inc.length)cs.push(`<span class="chip inc">⊘ ${m.inc.length}</span>`);
+      if(fc?.ic.length)cs.push(`<span class="chip wcfl">⚠ conflict (${fc.ic.length})</span>`);
+      if(fc?.mr.length)cs.push(`<span class="chip mreq">⚠ missing prereq (${fc.mr.length})</span>`);
+      if(ia)cs.push(`<span class="chip asgn">✓ in plan</span>`);
+      h+=`<div class="pitem${ia?' asgn':''}" style="--cc:${col(c.learningLine)}" data-id="${esc(c.id)}"><div class="pc">${esc(c.id)}</div><div class="pm">Q${c.quarters[0]} · ${c.ects}E</div><div class="pn">${esc(c.name)}</div><div class="pl">${esc(c.learningLine)}</div>${cs.length?`<div class="chips">${cs.join('')}</div>`:''}${ia?'<div class="ainplan">Already in plan</div>':''}</div>`;
+    });
+    h+=`</div></div><div class="msh-acts"><button class="mbtn" data-a="cl">Cancel</button></div>`;
+    open(h);sh.querySelector('.msh-x').onclick=close;sh.querySelectorAll('[data-a="cl"]').forEach(b=>b.onclick=close);
+    sh.querySelectorAll('.pitem:not(.asgn)').forEach(it=>it.onclick=()=>{
+      // If this elective is already in another slot, remove it from there first.
+      const eid=it.dataset.id;for(const[k,v]of asgn)if(v===eid&&k!==sid)asgn.delete(k);
+      asgn.set(sid,eid);close();grid();updateSummary();if(DR)DR();
+    });
+  }
+
+  // cpicker: sheet for choosing one of the three capstone options.
+  function cpicker(){
+    let h=`<div class="msh-hd"><div class="msh-hdt"><div class="msh-lbl">Choose capstone</div><h2 class="msh-title">Year 3 Capstone</h2></div><button class="msh-x">×</button></div><div class="msh-body"><div class="phelp">Select one capstone specialization.</div><div class="plist">`;
+    caps.forEach(c=>{const m=dm(c.id),u=new Set(m.unl.map(d=>d.id)),cs=[];if(m.req.length)cs.push(`<span class="chip req">→ ${m.req.length} prereq${m.req.length===1?'':'s'}</span>`);if(u.size)cs.push(`<span class="chip unl">← unlocks ${u.size}</span>`);if(m.inc.length)cs.push(`<span class="chip inc">⊘ ${m.inc.length}</span>`);h+=`<div class="pitem" style="--cc:${col(c.learningLine)}" data-id="${esc(c.id)}"><div class="pc">${esc(c.id)}</div><div class="pm">${c.ects}E</div><div class="pn">${esc(c.name)}</div><div class="pl">${esc(c.learningLine)}</div>${cs.length?`<div class="chips">${cs.join('')}</div>`:''}</div>`;});
+    h+=`</div></div><div class="msh-acts"><button class="mbtn" data-a="cl">Cancel</button></div>`;
+    open(h);sh.querySelector('.msh-x').onclick=close;sh.querySelectorAll('[data-a="cl"]').forEach(b=>b.onclick=close);
+    sh.querySelectorAll('.pitem').forEach(it=>it.onclick=()=>{S.setC(it.dataset.id);close();grid();updateSummary();if(DR)DR();});
+  }
+
+  // "i" FAB: opens a legend sheet listing all learning lines and relationship types.
+  document.getElementById('mlegfab').onclick=()=>{
+    let h=`<div class="msh-hd"><div class="msh-hdt"><div class="msh-lbl">Reference</div><h2 class="msh-title">Legend</h2></div><button class="msh-x">×</button></div><div class="msh-body"><div class="mshsec"><h3><span class="sdot" style="background:#3a3a3a"></span>Learning lines</h3><ul style="display:flex;flex-direction:column;gap:4px">`;
+    Object.entries(LC).forEach(([l,c])=>{h+=`<li class="sli" style="cursor:default"><span class="lc"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:middle;background:${c}"></span></span><span class="ln">${esc(l)}</span></li>`;});
+    h+=`</ul></div><div class="mshsec"><h3><span class="sdot" style="background:${DM.required.color}"></span>Relationships</h3><p style="font-size:13px;line-height:1.5;color:var(--ink-soft);margin:0"><b style="color:${DM.required.color}">Required</b> — hard prerequisite.<br><b style="color:${DM.recommended.color}">Recommended</b> — suggested, not enforced.<br><b style="color:${DM.incompatible.color}">Incompatible</b> — cannot be combined.</p></div></div><div class="msh-acts"><button class="mbtn ok" data-a="cl">Done</button></div>`;
+    open(h);sh.querySelector('.msh-x').onclick=close;sh.querySelectorAll('[data-a="cl"]').forEach(b=>b.onclick=close);
+  };
+
+  // ── Explorer (mobile) ─────────────────────────────────────────────────────
+  // ef: filter predicate for the explorer course list.
+  function ef(c){
+    if(isESlot(c)||c.id==='CapstoneSlot')return false;
+    const{q,yr,qr,tr,ln}=es;
+    if(q){const qv=q.toLowerCase();if(!c.id.toLowerCase().includes(qv)&&!c.name.toLowerCase().includes(qv))return false;}
+    if(yr!=='all'){if(yr==='el'){if(!isEl(c))return false;}else{if(isEl(c)||c.year!==yr)return false;}}
+    if(qr!=='all'&&!c.quarters.includes(qr))return false;
+    if(tr!=='all'&&c.track!==tr)return false;
+    if(ln!=='all'&&c.learningLine!==ln)return false;
+    return true;
+  }
+  document.getElementById('mbk').onclick=()=>{document.getElementById('me-list').classList.add('on');document.getElementById('me-detail').classList.remove('on');window.scrollTo(0,0);};
+
+  // rflt: rebuilds all filter chip rows to match current es state.
+  function rflt(){
+    const mk=(id,its,key)=>{document.getElementById(id).innerHTML='';its.forEach(([k,l])=>{const ch=document.createElement('div');ch.className='fchip'+(es[key]===k?' on':'');ch.textContent=l;ch.onclick=()=>{es[key]=k;rexp();};document.getElementById(id).appendChild(ch);});};
+    mk('mf-year',[['all','All'],[1,'Y1'],[2,'Y2'],[3,'Y3'],['el','Elective']],'yr');
+    mk('mf-qtr',[['all','All'],[1,'Q1'],[2,'Q2'],[3,'Q3'],[4,'Q4']],'qr');
+    mk('mf-track',[['all','All'],['MainProgram','Main'],['Elective','Elective']],'tr');
+    const le=document.getElementById('mf-line');le.innerHTML='';
+    [['all','All'],...lines.map(l=>[l,l])].forEach(([k,l])=>{const ch=document.createElement('div');ch.className='fchip'+(es.ln===k?' on':'');ch.textContent=l;ch.onclick=()=>{es.ln=k;rexp();};le.appendChild(ch);});
+    const si=document.getElementById('msrch');si.value=es.q;si.oninput=e=>{es.q=e.target.value;rexp();};
+  }
+
+  // rexp: re-runs filter + sort and renders the explorer list.
+  function rexp(){
+    rflt();
+    const f=ep.filter(ef).sort((a,b)=>{const ae=isEl(a),be=isEl(b);if(ae!==be)return ae?1:-1;if(!ae&&a.year!==b.year)return a.year-b.year;const aq=a.quarters[0]||0,bq=b.quarters[0]||0;if(aq!==bq)return aq-bq;return a.id.localeCompare(b.id);});
+    document.getElementById('mrescnt').textContent=`${f.length} course${f.length===1?'':'s'}`;
+    const l=document.getElementById('meclist');l.innerHTML='';
+    if(!f.length){l.innerHTML='<div class="mempty">No courses match these filters.</div>';return;}
+    f.forEach(c=>{const el=document.createElement('div');el.className='mecard';el.style.setProperty('--cc',col(c.learningLine));el.innerHTML=`<div class="ec-top"><span class="ec-code">${esc(c.id)}</span><span class="ec-meta">${yLbl(c)} · ${qLbl(c)} · ${c.ects}E</span></div><div class="ec-name">${esc(c.name)}</div><div class="ec-line">${esc(c.learningLine)} · ${esc(c.track)}</div>${mch(c.id,true)}`;el.onclick=()=>{es.sel=c.id;rdet();document.getElementById('me-list').classList.remove('on');document.getElementById('me-detail').classList.add('on');window.scrollTo(0,0);};l.appendChild(el);});
+  }
+
+  // rdet: renders the detail view for the currently selected explorer course.
+  function rdet(){
+    const sel=ep.find(c=>c.id===es.sel);const hst=document.getElementById('mdbody');
+    if(!sel){hst.innerHTML='<div class="mempty">No course selected.</div>';return;}
+    const m=dm(sel.id);
+    const ro=[...new Set(m.req.map(d=>d.id))],ri=[...new Set(m.unl.map(d=>d.id))];
+    const si=new Set(),ic=[];[...(S.out.get(sel.id)||[]),...(S.inc.get(sel.id)||[])].filter(d=>d.type==='incompatible').forEach(d=>{if(!si.has(d.id)){si.add(d.id);ic.push(d.id);}});
+    const cc=id=>{const c=byId.get(id);if(!c)return`<div class="mcc absent"><div class="ct"><span class="ccode">${esc(id)}</span></div><div class="cname">External</div></div>`;return`<div class="mcc" data-id="${esc(id)}" style="--cc:${col(c.learningLine)}"><div class="ct"><span class="ccode">${esc(c.id)}</span><span class="cmeta">${yLbl(c)} · ${qLbl(c)}</span></div><div class="cname">${esc(c.name)}</div></div>`;};
+    let h=`<div class="msel" style="--cc:${col(sel.learningLine)}"><div class="msel-code">${esc(sel.id)}</div><div class="msel-name">${esc(sel.name)}</div><div class="msel-meta"><span class="cl">${esc(sel.learningLine)}</span><span class="cl">${yLbl(sel)}</span><span class="cl">${qLbl(sel)}</span><span class="cl">${sel.ects} ECTS</span><span class="cl">${esc(sel.track)}</span></div></div>`;
+    h+=`<div class="mdstats"><div class="mdstat req"><div class="n">${ro.length}</div><div class="l">Prereqs</div></div><div class="mdstat unl"><div class="n">${ri.length}</div><div class="l">Unlocks</div></div><div class="mdstat inc"><div class="n">${ic.length}</div><div class="l">Incompat</div></div></div>`;
+    [['rq','↑','Required prerequisites',ro],['ul','↓','Unlocks (required by)',ri],['ic','!','Incompatible with',ic]].forEach(([cl,icon,t,l])=>{h+=`<div class="mdsec"><div class="mdsec-hd"><div class="mdsec-ic ${cl}">${icon}</div><div class="mdsec-title">${t}</div><div class="mdsec-ct">${l.length}</div></div>${l.length?`<div class="mdcards">${l.map(cc).join('')}</div>`:`<div class="mdsec-empty">None.</div>`}</div>`;});
+    if(m.rec.length){const ur=[...new Set(m.rec.map(d=>d.id))];h+=`<div class="mdsec"><div class="mdsec-hd"><div class="mdsec-ic" style="background:var(--rec)">~</div><div class="mdsec-title">Recommended</div><div class="mdsec-ct">${ur.length}</div></div><div class="mdcards">${ur.map(cc).join('')}</div></div>`;}
+    hst.innerHTML=h;
+    hst.querySelectorAll('.mcc[data-id]').forEach(el=>el.onclick=()=>{const id=el.dataset.id;if(ep.some(c=>c.id===id)){es.sel=id;rdet();}});
+  }
+
+  grid();updateSummary();rexp();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DESKTOP
+// ══════════════════════════════════════════════════════════════════════════════
+function buildD(){
+  const{asgn,byId,gc,eslots,caps,col,ec,dm,mch,cfls,pred,res}=S;
+
+  // mode: current interaction state — 'def' (default pool), 'cr' (course
+  //       inspect), 'sl' (elective slot picker), 'cp' (capstone picker).
+  // ssel: selected slot id in 'cr' mode. asl: active slot in 'sl' mode.
+  // pf: quarter filter for the elective pool panel ('all' or 1–4).
+  // es: explorer filter state (year, quarter, track, line, search query, selected id).
+  let mode='def',ssel=null,asl=null,pf='all';
+  const es={sel:null,yr:'all',qr:'all',tr:'all',ln:'all',q:''};
+  const ep=S.ac.filter(c=>!isESlot(c)&&c.id!=='CapstoneSlot');
+
+  // lines: unique learning lines for filter chips — excludes 'All' (virtual).
+  // FIX: 'External' is intentionally kept so courses with external prereqs
+  //      appear under that filter in the explorer sidebar.
+  const lines=[...new Set(ep.map(c=>c.learningLine))].filter(l=>l!=='All').sort();
+
+  // Tab switching: Planner ↔ Course explorer
+  document.querySelectorAll('.dtbtn').forEach(b=>b.addEventListener('click',()=>{
+    const t=b.getAttribute('data-tab');
+    document.querySelectorAll('.dtbtn').forEach(x=>x.classList.toggle('on',x===b));
+    document.querySelectorAll('.dtsec').forEach(s=>s.classList.toggle('on',s.id===t));
+    if(t==='dt-exp')rexpl();else{rcrses();rpanel();updateSummary();}
+  }));
+
+  // Populate #dleg-lines colour swatches.
+  // FIX: was previously excluding 'External'; now all lines in LC are shown
+  //      so the legend matches what actually appears on cards.
+  d3.select('#dleg-lines').html('');
+  [...new Set(ep.map(c=>c.learningLine))].filter(l=>l!=='All').sort().forEach(l=>{
+    const it=d3.select('#dleg-lines').append('div').attr('class','dleg-item');
+    it.append('div').attr('class','dleg-sw').style('background',col(l));
+    it.append('span').text(l);
+  });
+
+  // ── SVG grid geometry ─────────────────────────────────────────────────────
+  // Each course gets _sq/_eq (start/end quarter) for span calculation.
+  // Row packing: greedy non-overlapping row assignment per year.
+  // yh: pixel height of a year band. yy: Map<year, top-y>. pos: Map<id, {x,y,w,h}>.
+  gc.forEach(c=>{c._sq=Math.min(...c.quarters);c._eq=Math.max(...c.quarters);});
+  const yrs=[...new Set(gc.map(c=>c.year))].sort((a,b)=>a-b);
+  const yr=new Map();
+  d3.group(gc,c=>c.year).forEach((yc,y)=>{const s=[...yc].sort((a,b)=>a._sq-b._sq||a._eq-b._eq);const rows=[];s.forEach(c=>{let p=false;for(let i=0;i<rows.length;i++){if(rows[i].every(([a,b])=>c._eq<a||c._sq>b)){rows[i].push([c._sq,c._eq]);c._row=i;p=true;break;}}if(!p){rows.push([[c._sq,c._eq]]);c._row=rows.length-1;}});yr.set(y,rows.length);});
+  const qw=(DC.w-DC.yw)/4;
+  const yh=y=>yr.get(y)*(DC.ch+DC.cp)-DC.cp+2*DC.rp;
+  const yy=new Map();let cy=DC.qh;yrs.forEach(y=>{yy.set(y,cy);cy+=yh(y);});
+  const th=cy;
+  const pos=new Map();gc.forEach(c=>{const x=DC.yw+(c._sq-1)*qw+DC.pp,w=(c._eq-c._sq+1)*qw-2*DC.pp,y2=yy.get(c.year)+DC.rp+c._row*(DC.ch+DC.cp);pos.set(c.id,{x,y:y2,w,h:DC.ch});});
+
+  // ── SVG scaffold ──────────────────────────────────────────────────────────
+  // Layers (bottom to top): cl = cards, ol = incompatible overlays,
+  //                          el = dependency edges, rl = selection ring.
+  d3.select('#dc').selectAll('*').remove();
+  const svg=d3.select('#dc').append('svg').attr('viewBox',`0 0 ${DC.w} ${th}`).attr('preserveAspectRatio','xMinYMin meet');
+  const defs=svg.append('defs');
+  // Arrow markers for each dependency type.
+  [['arr-required','var(--req)'],['arr-recommended','var(--rec)'],['arr-one_of','var(--one)']].forEach(([id,c])=>{defs.append('marker').attr('id',id).attr('viewBox','0 0 10 10').attr('refX',9).attr('refY',5).attr('markerWidth',6).attr('markerHeight',6).attr('orient','auto-start-reverse').append('path').attr('d','M 0 0 L 10 5 L 0 10 z').attr('fill',c);});
+  // Hatch pattern for incompatible course overlays.
+  const h=defs.append('pattern').attr('id','ihatch').attr('patternUnits','userSpaceOnUse').attr('width',8).attr('height',8).attr('patternTransform','rotate(45)');
+  h.append('rect').attr('width',8).attr('height',8).attr('fill','rgba(255,255,255,0.55)');
+  h.append('line').attr('x1',0).attr('y1',0).attr('x2',0).attr('y2',8).attr('stroke','var(--inc)').attr('stroke-width',3);
+  // Alternating year-band shading, axis lines, quarter/year labels.
+  yrs.forEach((y,i)=>{if(i%2!==1)return;svg.append('rect').attr('x',0).attr('y',yy.get(y)).attr('width',DC.w).attr('height',yh(y)).attr('fill','rgba(0,0,0,0.018)');});
+  [1,2,3,4].forEach(q=>svg.append('text').attr('class','axlbl').attr('x',DC.yw+(q-.5)*qw).attr('y',DC.qh/2+5).attr('text-anchor','middle').attr('font-size',14).attr('font-weight',600).attr('fill','var(--ink)').text(`Quarter ${q}`));
+  yrs.forEach(y=>svg.append('text').attr('class','axlbl').attr('x',DC.yw/2).attr('y',yy.get(y)+yh(y)/2).attr('text-anchor','middle').attr('dominant-baseline','middle').attr('font-size',14).attr('font-weight',600).attr('fill','var(--ink)').text(`Year ${y}`));
+  for(let i=0;i<=4;i++){const x=DC.yw+i*qw;svg.append('line').attr('class',i===0?'aline':'gline').attr('x1',x).attr('x2',x).attr('y1',0).attr('y2',th);}
+  svg.append('line').attr('class','aline').attr('x1',0).attr('x2',DC.w).attr('y1',DC.qh).attr('y2',DC.qh);
+  yrs.forEach(y=>{const yp=yy.get(y)+yh(y);svg.append('line').attr('class','gline').attr('x1',0).attr('x2',DC.w).attr('y1',yp).attr('y2',yp);});
+  // Transparent full-canvas click trap: clicking empty space returns to default mode.
+  svg.append('rect').attr('x',0).attr('y',0).attr('width',DC.w).attr('height',th).attr('fill','transparent').on('click',()=>gdef());
+  const cl=svg.append('g'),ol=svg.append('g'),el=svg.append('g'),rl=svg.append('g');
+  const tt=d3.select('#dtt');
+
+  // ── Tooltip helpers ───────────────────────────────────────────────────────
+  // tth: builds tooltip HTML for a course — shows name, meta, conflicts, deps.
+  function tth(c,opts={}){
+    const m=dm(c.id),cv=opts.cfls||[];
+    const ih=id=>{const r=res(id);return r?`<span class="ti"><b>${esc(r.id)}</b><span class="tin">${esc(trunc(r.name,36))}</span></span>`:`<span class="ti"><b>${esc(id)}</b><span class="tin">(external)</span></span>`;};
+    let h=`<div class="tn">${esc(c.name)}</div><div class="tm"><b style="font-family:'IBM Plex Mono',monospace">${esc(c.id)}</b> · ${c.ects} ECTS${opts.yl?' · '+esc(opts.yl):''}${opts.ql?' · '+esc(opts.ql):''}</div><span class="tl" style="background:${col(c.learningLine)}">${esc(c.learningLine)}</span>`;
+    if(cv.length){h+=`<div class="tcfl"><div class="tch">⚠ ${cv.length} conflict${cv.length===1?'':'s'}</div>`;cv.slice(0,3).forEach(cf=>{const oid=cf.c===c.id?cf.o:cf.c;const oc=res(oid);h+=`<div class="tci">${cf.t==='ic'?'Incompatible with':'Missing required'} <b>${esc(oid)}</b> · ${esc(oc?trunc(oc.name,32):'(external)')}</div>`;});if(cv.length>3)h+=`<div class="tci" style="opacity:.7">+ ${cv.length-3} more</div>`;h+=`</div>`;}
+    const ss=[];
+    if(m.req.length)ss.push({h:`Required (${m.req.length})`,d:DM.required.dot,it:m.req.map(d=>ih(d.id))});
+    if(m.unl.length){const u=[...new Set(m.unl.map(d=>d.id))];ss.push({h:`Unlocks (${u.length})`,d:'#aaa',it:u.map(id=>ih(id))});}
+    if(m.rec.length)ss.push({h:`Recommended (${m.rec.length})`,d:DM.recommended.dot,it:m.rec.map(d=>ih(d.id))});
+    if(m.inc.length)ss.push({h:`Incompatible (${m.inc.length})`,d:DM.incompatible.dot,it:m.inc.map(d=>ih(d.id))});
+    if(ss.length){h+=`<div class="tdiv"></div>`;ss.forEach(s=>{h+=`<div class="tsec"><div class="tsh"><span class="tdot" style="background:${s.d}"></span>${s.h}</div><div class="tlist">${s.it.slice(0,6).join('')}${s.it.length>6?`<span class="ti" style="opacity:.6">+ ${s.it.length-6} more</span>`:''}</div></div>`;});}
+    else h+=`<div class="tdiv"></div><div class="tsec" style="font-size:11px;color:rgba(255,255,255,.55);font-style:italic">No dependencies recorded.</div>`;
+    if(opts.hint)h+=`<div class="thint">${esc(opts.hint)}</div>`;
+    return h;
+  }
+  // ptt: positions the tooltip near the cursor, flipping if near viewport edges.
+  function ptt(ev){const t=document.getElementById('dtt'),p=14,w=t.offsetWidth,hh=t.offsetHeight;let l=ev.pageX+p,top=ev.pageY+p;const vw=window.innerWidth+window.scrollX,vh=window.innerHeight+window.scrollY;if(l+w+8>vw)l=ev.pageX-w-p;if(top+hh+8>vh)top=ev.pageY-hh-p;if(l<8)l=8;if(top<8)top=8;t.style.left=l+'px';t.style.top=top+'px';}
+
+  // ── Course card rendering ─────────────────────────────────────────────────
+  // rcrses: clears and redraws all course cards in the SVG grid.
+  //         Builds a conflict map (cm) first so each card knows its badge count.
+  function rcrses(){
+    cl.selectAll('*').remove();
+    const cm=new Map();cfls().forEach(c=>{[c.c,c.o].forEach(id=>{if(!cm.has(id))cm.set(id,[]);cm.get(id).push(c);});});
+    gc.forEach(slot=>{
+      const e=ec(slot);const d=(isCSlot(slot)&&S.capsel)?byId.get(S.capsel):e;
+      const p=pos.get(slot.id);
+      const mt=(isESlot(slot)&&!asgn.has(slot.id))||(isCSlot(slot)&&!S.capsel);
+      const fe=isESlot(slot)&&asgn.has(slot.id);
+      const g=cl.append('g').attr('class','cg').attr('transform',`translate(${p.x},${p.y})`).attr('data-id',slot.id);
+      const r=g.append('rect').attr('width',p.w).attr('height',p.h).attr('rx',5).attr('ry',5);
+      if(mt){
+        // Empty slot: dashed rect with "choose" prompt.
+        r.attr('class','crect empty'+(asl===slot.id?' aslot':''));
+        g.append('text').attr('class','eslot-t').attr('x',p.w/2).attr('y',p.h/2-2).attr('text-anchor','middle').attr('dominant-baseline','middle').text(isCSlot(slot)?'+ Choose capstone':'+ Choose elective');
+        g.append('text').attr('class','eslot-m').attr('x',p.w/2).attr('y',p.h/2+14).attr('text-anchor','middle').attr('dominant-baseline','middle').text(`Y${slot.year} · Q${slot.quarters[0]} · ${slot.ects} ECTS`);
+        r.on('click',e=>{e.stopPropagation();if(isCSlot(slot))gcpick();else gslot(slot.id);});
+      } else {
+        // Filled slot: coloured rect with code, ECTS, name text.
+        r.attr('class','crect').attr('fill',col(d.learningLine));
+        g.append('text').attr('class','ccode').attr('x',12).attr('y',20).text(d.id);
+        g.append('text').attr('class','cects').attr('x',p.w-12).attr('y',20).attr('text-anchor','end').text(`${d.ects} ECTS`);
+        g.append('text').attr('class','cname').attr('x',12).attr('y',42).text(fit(d.name,p.w-24,12));
+        const cv=cm.get(d.id)||[];
+        r.on('click',e=>{e.stopPropagation();gcourse(slot.id);})
+          .on('mouseover',()=>{if(mode==='cr')return;tt.style('opacity',1).html(tth(d,{yl:`Year ${slot.year}`,ql:slot.quarters.length>1?'Q'+slot.quarters.join('–Q'):'Q'+slot.quarters[0],cfls:cv,hint:'Click for details · click again to clear'}));})
+          .on('mousemove',e=>{if(mode!=='cr')ptt(e);}).on('mouseout',()=>tt.style('opacity',0));
+        // × remove button for elective/capstone assignments.
+        if(fe||(isCSlot(slot)&&S.capsel)){const rb=g.append('g').attr('class','rmbtn').attr('transform',`translate(${p.w-14},${p.h-14})`).on('click',e=>{e.stopPropagation();if(isCSlot(slot))S.setC(null);else asgn.delete(slot.id);rcrses();rpanel();updateSummary();});rb.append('circle').attr('r',9);rb.append('text').text('×').attr('y',1);}
+        // ! conflict badge (offset left of × if both are present).
+        if(cv.length){const bx=fe?p.w-32:p.w-14;g.append('g').attr('class','wbadge').attr('transform',`translate(${bx},${p.h-14})`).on('mouseover',()=>{if(mode==='cr')return;tt.style('opacity',1).html(tth(d,{yl:`Year ${slot.year}`,ql:slot.quarters.length>1?'Q'+slot.quarters.join('–Q'):'Q'+slot.quarters[0],cfls:cv}));}).on('mousemove',e=>{if(mode!=='cr')ptt(e);}).on('mouseout',()=>tt.style('opacity',0)).call(g2=>{g2.append('circle').attr('r',9);g2.append('text').text('!').attr('y',1);});}
+      }
+    });
+  }
+
+  // ── Course highlight (focus mode) ─────────────────────────────────────────
+  // clov: clears overlay/edge/ring layers and un-dims all cards.
+  function clov(){ol.selectAll('*').remove();el.selectAll('*').remove();rl.selectAll('*').remove();cl.selectAll('.cg').classed('dim',false);}
+
+  // hcourse: dims unrelated cards and draws dependency arrows + incompatible
+  //          overlays for the selected slot. ets maps effective course id → slot id.
+  function hcourse(sid){
+    clov();const slot=byId.get(sid)||(sid==='CapstoneSlot'?{id:'CapstoneSlot',quarters:[1],year:3}:null);if(!slot)return;
+    const e=ec(slot);const d=(isCSlot(slot)&&S.capsel)?byId.get(S.capsel):e;
+    const o=S.out.get(d.id)||[],ic=S.inc.get(d.id)||[];
+    const ets=new Map();gc.forEach(s=>{const ee=ec(s);ets.set(ee.id,s.id);});
+    const rel=new Set([sid]);
+    o.forEach(d=>{if(ets.has(d.id))rel.add(ets.get(d.id));});ic.forEach(d=>{if(ets.has(d.id))rel.add(ets.get(d.id));});
+    cl.selectAll('.cg').each(function(){d3.select(this).classed('dim',!rel.has(d3.select(this).attr('data-id')));});
+    const sp=pos.get(sid);if(!sp)return;
+    rl.append('rect').attr('class','sring').attr('x',sp.x-3).attr('y',sp.y-3).attr('width',sp.w+6).attr('height',sp.h+6).attr('rx',7).attr('ry',7);
+    const dd=(deps,dir)=>{d3.group(deps.filter(d=>ets.has(d.id)),d=>d.type).forEach((items,type)=>{items.forEach(({id})=>{const ts=ets.get(id);if(type==='incompatible'){const p2=pos.get(ts);ol.append('rect').attr('class','iover').attr('x',p2.x).attr('y',p2.y).attr('width',p2.w).attr('height',p2.h).attr('rx',5).attr('ry',5);}else{const f=dir==='o'?ts:sid,t=dir==='o'?sid:ts;darr(f,t,type);}});});};
+    dd(o,'o');dd(ic,'i');
+  }
+
+  // darr: draws a cubic Bezier arrow between two slot positions.
+  //       Routes horizontally if dx >= dy, else vertically.
+  function darr(f,t,type){const a=pos.get(f),b=pos.get(t);if(!a||!b)return;const ax=a.x+a.w/2,ay=a.y+a.h/2,bx=b.x+b.w/2,by=b.y+b.h/2,dx=bx-ax,dy=by-ay;let p1,p2;if(Math.abs(dx)>=Math.abs(dy)){p1=dx>=0?{x:a.x+a.w,y:ay}:{x:a.x,y:ay};p2=dx>=0?{x:b.x,y:by}:{x:b.x+b.w,y:by};}else{p1=dy>=0?{x:ax,y:a.y+a.h}:{x:ax,y:a.y};p2=dy>=0?{x:bx,y:b.y}:{x:bx,y:b.y+b.h};}const cdx=p2.x-p1.x,cdy=p2.y-p1.y,hz=Math.abs(cdx)>=Math.abs(cdy);const c1x=hz?p1.x+cdx*.5:p1.x,c1y=hz?p1.y:p1.y+cdy*.5,c2x=hz?p2.x-cdx*.5:p2.x,c2y=hz?p2.y:p2.y-cdy*.5;el.append('path').attr('class',`edge ${type}`).attr('d',`M ${p1.x} ${p1.y} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`).attr('marker-end',`url(#arr-${type})`);}
+
+  // ── Interaction mode transitions ──────────────────────────────────────────
+  function gdef(){mode='def';ssel=null;asl=null;clov();rcrses();rpanel();updateSummary();}
+  function gcourse(sid){if(mode==='cr'&&ssel===sid){gdef();return;}mode='cr';ssel=sid;asl=null;rcrses();hcourse(sid);rpanel();updateSummary();}
+  function gslot(sid){if(mode==='sl'&&asl===sid){gdef();return;}mode='sl';asl=sid;ssel=null;clov();rcrses();rpanel();updateSummary();}
+  // dass: assign elective cid to slot sid; evict from any other slot first.
+  function dass(sid,cid){for(const[k,v]of asgn)if(v===cid&&k!==sid)asgn.delete(k);asgn.set(sid,cid);gdef();}
+
+  // ── Side panel dispatch ───────────────────────────────────────────────────
+  function rpanel(){const p=d3.select('#dpanel').html('');if(mode==='cr')rinsp(p);else if(mode==='sl')rslpk(p);else rpool(p);}
+
+  // pi: renders one elective/pool item row with conflict-forecast chips.
+  //     opts.asgn = already assigned (greyed). opts.click = click handler.
+  function pi(par,c,opts={}){
+    const m=dm(c.id),u=new Set(m.unl.map(d=>d.id));const ia=!!opts.asgn;const fc=ia?null:pred(c.id);
+    const it=par.append('div').attr('class','dpi'+(ia?' asgn':''));
+    if(!ia&&opts.click)it.on('click',()=>opts.click(c));
+    it.on('mouseover',ev=>{const cv=[];if(fc){fc.ic.forEach(id=>cv.push({t:'ic',c:c.id,o:id}));fc.mr.forEach(id=>cv.push({t:'mr',c:c.id,o:id}));}tt.style('opacity',1).html(tth(c,{yl:yLbl(c),ql:qLbl(c),cfls:cv,hint:ia?'Already assigned.':(fc&&(fc.ic.length||fc.mr.length))?'Would create conflicts.':'Click to assign.'}));}).on('mousemove',ptt).on('mouseout',()=>tt.style('opacity',0));
+    it.append('div').attr('class','pbar').style('background',col(c.learningLine));
+    const bd=it.append('div').style('min-width','0');bd.append('div').attr('class','pcode').text(c.id);bd.append('div').attr('class','pname').text(c.name);
+    const ch=bd.append('div').attr('class','pchips');
+    if(m.req.length)ch.append('span').attr('class','chip req').html(`→ ${m.req.length} prereq${m.req.length===1?'':'s'}`);
+    if(u.size)ch.append('span').attr('class','chip unl').html(`← unlocks ${u.size}`);
+    if(m.inc.length)ch.append('span').attr('class','chip cfl').html(`⊘ ${m.inc.length}`);
+    if(fc?.ic.length)ch.append('span').attr('class','chip wcfl').html(`⚠ conflict (${fc.ic.length})`);
+    if(fc?.mr.length)ch.append('span').attr('class','chip mreq').html(`⚠ missing prereq (${fc.mr.length})`);
+    if(ia)ch.append('span').attr('class','chip asgn').text('✓ in plan');
+    it.append('div').attr('class','pmeta').text(`${yLbl(c)} · ${qLbl(c)} · ${c.ects}E`);
+    return it;
+  }
+
+  // rpool: default panel — shows full elective catalogue with quarter filter.
+  function rpool(p){
+    const h=p.append('div').attr('class','dph');h.append('div').attr('class','dph-lbl').text('Elective pool');h.append('h2').text('Electives');h.append('div').attr('class','dph-sub').text('Hover to see conflict forecasts. Click to inspect.');
+    const b=p.append('div').attr('class','dpb');
+    const fr=b.append('div').attr('class','dpflt');
+    ['all',1,2,3,4].forEach(q=>fr.append('div').attr('class','dpchip'+(pf===q?' on':'')).text(q==='all'?'All':`Q${q}`).on('click',()=>{pf=q;rpanel();}));
+    let cs=S.elc;if(pf!=='all')cs=cs.filter(c=>c.quarters[0]===pf);cs=cs.sort((a,b)=>a.quarters[0]-b.quarters[0]||a.id.localeCompare(b.id));
+    b.append('div').attr('class','dpcnt').text(`${cs.length} elective course${cs.length===1?'':'s'}`);
+    const l=b.append('div').attr('class','dplist');const as=new Set(asgn.values());
+    cs.forEach(c=>pi(l,c,{asgn:as.has(c.id),click:cc=>gfromel(cc.id)}));
+  }
+
+  // rinsp: course inspector panel — shown when a slot is selected (mode='cr').
+  function rinsp(p){
+    const sid=ssel;const slot=byId.get(sid)||(sid==='CapstoneSlot'?{id:'CapstoneSlot',year:3,quarters:[1],ects:5,learningLine:'All',track:'MainProgram'}:null);if(!slot)return;
+    const e=ec(slot);const d=(isCSlot(slot)&&S.capsel)?byId.get(S.capsel):e;
+    const h=p.append('div').attr('class','dph');h.append('div').attr('class','dph-lbl').text('Course details');h.append('div').attr('class','dpmcode').text(d.id);h.append('h2').style('margin','2px 0 0').text(d.name);
+    const b=p.append('div').attr('class','dpb');
+    const mt=b.append('div').attr('class','dpmeta');
+    mt.append('span').attr('class','dmc ln').style('background',col(d.learningLine)).text(d.learningLine);
+    if(!isCSlot(slot))mt.append('span').attr('class','dmc').text(`Year ${slot.year}`);
+    mt.append('span').attr('class','dmc').text(qLbl(slot));
+    mt.append('span').attr('class','dmc').text(`${d.ects} ECTS`);
+    mt.append('span').attr('class','dmc').text(esc(d.track||'MainProgram'));
+    if(e._fe)mt.append('span').attr('class','dmc').style('background','var(--rec)').style('color','#fff').style('border','none').text('Elective pick');
+    const cv=cfls().filter(c=>c.c===d.id||c.o===d.id);
+    if(cv.length){const w=b.append('div').attr('class','dwarn');w.append('h4').html(`⚠ ${cv.length} conflict${cv.length===1?'':'s'} detected`);const ul=w.append('ul');cv.forEach(c=>{const oid=c.c===d.id?c.o:c.c;const oc=byId.get(oid);ul.append('li').html(`<span class="ct">${c.t==='ic'?'Incompatible':'Missing prereq'}</span>: <code>${oid}</code> — ${esc(oc?oc.name:'(unknown)')}`);});}
+    const o=S.out.get(d.id)||[];d3.group(o,x=>x.type).forEach((l,type)=>{if(!l.length)return;const sc=b.append('div').attr('class','dpsec');const hh=sc.append('h3');hh.append('span').attr('class','sdot').style('background',DM[type]?DM[type].color:'var(--one)');hh.append('span').text(DM[type]?DM[type].label:type);const ul=sc.append('ul');l.forEach(x=>ali(ul,x.id));});
+    const ic=(S.inc.get(d.id)||[]).filter(x=>x.type==='required');if(ic.length){const sc=b.append('div').attr('class','dpsec');sc.append('h3').call(hh=>{hh.append('span').attr('class','sdot').style('background','var(--ink-soft)');hh.append('span').text('Unlocks');});const ul=sc.append('ul');const s=new Set();ic.forEach(x=>{if(s.has(x.id))return;s.add(x.id);ali(ul,x.id);});}
+    const acts=p.append('div').attr('class','dpacts');acts.append('button').attr('class','dbtn').text('← Back').on('click',gdef);
+    if(e._fe)acts.append('button').attr('class','dbtn').text('Unassign').on('click',()=>{asgn.delete(sid);gdef();});
+  }
+
+  // rslpk: elective slot picker panel — shown when an empty slot is clicked (mode='sl').
+  function rslpk(p){
+    const slot=byId.get(asl);if(!slot)return;const q=slot.quarters[0];
+    const h=p.append('div').attr('class','dph');h.append('div').attr('class','dph-lbl').text('Choose elective');h.append('h2').text(`Year ${slot.year}, Q${q}`);h.append('div').attr('class','dph-sub').text('Conflict forecasts shown. Click to assign.');
+    const b=p.append('div').attr('class','dpb');
+    const mt=S.elc.filter(c=>c.quarters[0]===q).sort((a,b)=>a.id.localeCompare(b.id));
+    const as=new Set(asgn.values());
+    b.append('div').attr('class','dpcnt').text(`${mt.length} course${mt.length===1?'':'s'} for Q${q}`);
+    const l=b.append('div').attr('class','dplist');mt.forEach(c=>pi(l,c,{asgn:as.has(c.id),click:cc=>dass(asl,cc.id)}));
+    if(!mt.length)b.append('div').style('color','var(--ink-faint)').style('font-style','italic').style('font-size','12px').style('margin-top','8px').text('No elective courses for this quarter.');
+    p.append('div').attr('class','dpacts').append('button').attr('class','dbtn').text('Cancel').on('click',gdef);
+  }
+
+  // gcpick: capstone picker — temporary panel mode (mode='cp').
+  function gcpick(){
+    mode='cp';const p=d3.select('#dpanel').html('');
+    const h=p.append('div').attr('class','dph');h.append('div').attr('class','dph-lbl').text('Choose capstone');h.append('h2').text('Year 3 Capstone');h.append('div').attr('class','dph-sub').text('Select one capstone specialization.');
+    const b=p.append('div').attr('class','dpb');const l=b.append('div').attr('class','dplist');
+    caps.forEach(c=>{const it=l.append('div').attr('class','dpi').on('click',()=>{S.setC(c.id);rcrses();rpanel();updateSummary();}).on('mouseover',ev=>{tt.style('opacity',1).html(tth(c,{yl:'Year 3',ql:'Q1',hint:'Click to select capstone.'}));}).on('mousemove',ptt).on('mouseout',()=>tt.style('opacity',0));it.append('div').attr('class','pbar').style('background',col(c.learningLine));const bd=it.append('div').style('min-width','0');bd.append('div').attr('class','pcode').text(c.id);bd.append('div').attr('class','pname').text(c.name);const m=dm(c.id);if(m.req.length)bd.append('div').attr('class','pchips').append('span').attr('class','chip req').html(`→ ${m.req.length} prereq${m.req.length===1?'':'s'}`);it.append('div').attr('class','pmeta').text(`${c.ects}E`);});
+    p.append('div').attr('class','dpacts').append('button').attr('class','dbtn').text('Cancel').on('click',gdef);
+  }
+
+  // gfromel: opens an elective preview panel from the pool (not a slot context).
+  function gfromel(cid){
+    const c=byId.get(cid);if(!c)return;mode='cr';ssel=null;asl=null;clov();rcrses();
+    const p=d3.select('#dpanel').html('');
+    const h=p.append('div').attr('class','dph');h.append('div').attr('class','dph-lbl').text('Elective preview');h.append('div').attr('class','dpmcode').text(c.id);h.append('h2').style('margin','2px 0 0').text(c.name);
+    const b=p.append('div').attr('class','dpb');
+    const mt=b.append('div').attr('class','dpmeta');mt.append('span').attr('class','dmc ln').style('background',col(c.learningLine)).text(c.learningLine);mt.append('span').attr('class','dmc').text(qLbl(c));mt.append('span').attr('class','dmc').text(`${c.ects} ECTS`);mt.append('span').attr('class','dmc').text('Elective');
+    const o=S.out.get(c.id)||[];d3.group(o,x=>x.type).forEach((l,type)=>{if(!l.length)return;const sc=b.append('div').attr('class','dpsec');sc.append('h3').call(hh=>{hh.append('span').attr('class','sdot').style('background',DM[type]?DM[type].color:'#888');hh.append('span').text(DM[type]?DM[type].label:type);});const ul=sc.append('ul');l.forEach(x=>ali(ul,x.id));});
+    const ic=(S.inc.get(c.id)||[]).filter(x=>x.type==='required');if(ic.length){const sc=b.append('div').attr('class','dpsec');sc.append('h3').call(hh=>{hh.append('span').attr('class','sdot').style('background','var(--ink-soft)');hh.append('span').text('Unlocks');});const ul=sc.append('ul');const s=new Set();ic.forEach(x=>{if(s.has(x.id))return;s.add(x.id);ali(ul,x.id);});}
+    p.append('div').attr('class','dpacts').append('button').attr('class','dbtn').text('← Back to pool').on('click',gdef);
+  }
+
+  // ali: appends a dependency list item; navigates to course on click.
+  function ali(ul,id){
+    const c=byId.get(id);const li=ul.append('li');
+    if(!c){li.classed('absent',true);li.append('span').attr('class','lc').text(id);li.append('span').attr('class','ln').text('external');return;}
+    li.append('span').attr('class','lc').text(c.id);li.append('span').attr('class','ln').text(c.name+(isEl(c)?' (elective)':''));
+    const hnd=isEl(c)?()=>gfromel(c.id):()=>gcourse(c.id);
+    li.on('click',hnd).on('mouseover',()=>{tt.style('opacity',1).html(tth(c,{yl:yLbl(c),ql:qLbl(c),hint:'Click to focus.'}));}).on('mousemove',ptt).on('mouseout',()=>tt.style('opacity',0));
+  }
+
+  // ── Explorer tab ──────────────────────────────────────────────────────────
+  // ef: filter predicate (mirrors mobile ef but uses desktop es state).
+  function ef(c){
+    if(isESlot(c)||c.id==='CapstoneSlot')return false;
+    const{yr,qr,tr,ln,q}=es;
+    if(q){const qv=q.toLowerCase();if(!c.id.toLowerCase().includes(qv)&&!c.name.toLowerCase().includes(qv))return false;}
+    if(yr!=='all'){if(yr==='el'){if(!isEl(c))return false;}else{if(isEl(c)||c.year!==yr)return false;}}
+    if(qr!=='all'&&!c.quarters.includes(qr))return false;
+    if(tr!=='all'&&c.track!==tr)return false;
+    if(ln!=='all'&&c.learningLine!==ln)return false;
+    return true;
+  }
+
+  // rexff: rebuilds all sidebar filter chip rows to match current es state.
+  function rexff(){
+    const mk=(id,its,key)=>{d3.select('#'+id).html('');its.forEach(([k,l])=>d3.select('#'+id).append('div').attr('class','dpchip'+(es[key]===k?' on':'')).text(l).on('click',()=>{es[key]=k;rexpl();}));};
+    mk('df-year',[['all','All'],[1,'Y1'],[2,'Y2'],[3,'Y3'],['el','Elective']],'yr');
+    mk('df-qtr',[['all','All'],[1,'Q1'],[2,'Q2'],[3,'Q3'],[4,'Q4']],'qr');
+    mk('df-track',[['all','All'],['MainProgram','Main program'],['Elective','Elective']],'tr');
+    d3.select('#df-line').html('');[['all','All'],...lines.map(l=>[l,l])].forEach(([k,l])=>d3.select('#df-line').append('div').attr('class','dpchip'+(es.ln===k?' on':'')).text(l).on('click',()=>{es.ln=k;rexpl();}));
+    const si=document.getElementById('dexsrch');if(si){si.value=es.q;si.oninput=e=>{es.q=e.target.value;rexpl();};}
+  }
+
+  // rexlist: renders the filtered + sorted sidebar course list.
+  function rexlist(){
+    const f=ep.filter(ef).sort((a,b)=>{const ae=isEl(a),be=isEl(b);if(ae!==be)return ae?1:-1;if(!ae&&a.year!==b.year)return a.year-b.year;const aq=a.quarters[0]||0,bq=b.quarters[0]||0;if(aq!==bq)return aq-bq;return a.id.localeCompare(b.id);});
+    document.getElementById('dexcnt').textContent=`${f.length} course${f.length===1?'':'s'}`;
+    const l=d3.select('#dexlist').html('');
+    f.forEach(c=>{const m=dm(c.id),u=new Set(m.unl.map(d=>d.id));const it=l.append('div').attr('class','dpi'+(es.sel===c.id?' sel':'')).on('click',()=>{es.sel=c.id;rexpl();});it.append('div').attr('class','pbar').style('background',col(c.learningLine));const bd=it.append('div').style('min-width','0');bd.append('div').attr('class','pcode').text(c.id);bd.append('div').attr('class','pname').text(c.name);const ch=bd.append('div').attr('class','pchips');if(m.req.length)ch.append('span').attr('class','chip req').html(`→ ${m.req.length}`);if(u.size)ch.append('span').attr('class','chip unl').html(`← ${u.size}`);if(m.inc.length)ch.append('span').attr('class','chip cfl').html(`⊘ ${m.inc.length}`);it.append('div').attr('class','pmeta').text(`${yLbl(c)} · ${qLbl(c)} · ${esc(c.track)}`);});
+  }
+
+  // rexmain: renders the prereq-chain view for the selected explorer course.
+  //          Shows: required prereqs → selected → unlocks, plus incompatibilities.
+  function rexmain(){
+    const hst=document.getElementById('dexmain');hst.innerHTML='';
+    if(!es.sel){hst.innerHTML=`<div class="dexempty"><div><div class="hi">↶</div><div>Select a course to explore its prerequisite chain.</div></div></div>`;return;}
+    const sel=ep.find(c=>c.id===es.sel);if(!sel){es.sel=null;rexmain();return;}
+    const ro=(S.out.get(sel.id)||[]).filter(d=>d.type==='required');
+    const ri=(S.inc.get(sel.id)||[]).filter(d=>d.type==='required');
+    const si=new Set(),ic=[];[...(S.out.get(sel.id)||[]),...(S.inc.get(sel.id)||[])].filter(d=>d.type==='incompatible').forEach(d=>{if(!si.has(d.id)){si.add(d.id);ic.push(d.id);}});
+    const ch=id=>{const c=byId.get(id);if(!c)return`<div class="dccard absent"><div class="cc">${esc(id)}</div><div class="cn">External</div></div>`;return`<div class="dccard" data-id="${esc(id)}" style="--cc:${col(c.learningLine)}"><div class="cc">${esc(c.id)} · ${esc(yLbl(c))} · ${esc(qLbl(c))}</div><div class="cn">${esc(c.name)}</div><div class="ck">${esc(c.track)}</div></div>`;};
+    hst.innerHTML=`<div class="dcv"><div class="dcc"><div class="dcc-h">Required prerequisites</div><div class="dccs">${ro.length?ro.map(d=>ch(d.id)).join(''):'<div class="dcce">No required prerequisites.</div>'}</div></div><div class="dcca">›</div><div class="dcc ctr"><div class="dcc-h">Selected course</div><div class="dccs"><div class="dcctr" style="--cc:${col(sel.learningLine)}"><div class="cc">${esc(sel.id)}</div><div class="cn">${esc(sel.name)}</div><div class="cm">${esc(sel.learningLine)} · ${yLbl(sel)} · ${qLbl(sel)} · ${sel.ects} ECTS · ${esc(sel.track)}</div></div></div></div><div class="dcca">›</div><div class="dcc"><div class="dcc-h">Unlocks (required by)</div><div class="dccs">${ri.length?[...new Set(ri.map(d=>d.id))].map(id=>ch(id)).join(''):'<div class="dcce">No course requires this one.</div>'}</div></div></div><div class="dicb"><h3><span class="dleg-inc" style="width:13px;height:13px;display:inline-block;flex-shrink:0"></span>Incompatible with</h3><div class="dics">Cannot be combined with <b>${esc(sel.id)}</b>.</div>${ic.length?`<div class="dicl">${ic.map(id=>ch(id)).join('')}</div>`:'<div class="dice">No incompatibilities recorded.</div>'}</div>`;
+    hst.querySelectorAll('.dccard[data-id]').forEach(el=>el.addEventListener('click',()=>{const id=el.dataset.id;if(ep.some(c=>c.id===id)){es.sel=id;rexpl();}}));
+  }
+
+  // rexpl: full explorer refresh — filters, list, and main panel.
+  function rexpl(){rexff();rexlist();rexmain();}
+
+  // DR: desktop re-render hook called by mobile actions that mutate shared state.
+  DR=()=>{rcrses();rpanel();updateSummary();};
+  rcrses();rpanel();updateSummary();rexpl();
+}
+</script>
+</body>
+</html>
